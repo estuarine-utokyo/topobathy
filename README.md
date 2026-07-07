@@ -23,6 +23,7 @@ Portability and extensibility (mirroring the `xfvcom` layout):
   |---|---|
   | `topobathy.io` | dataset readers/writers (`read_jbird`, `write_points`, …) |
   | `topobathy.datum` | vertical-datum conversions (`Z0Field`, chart datum ↔ T.P.) |
+  | `topobathy.grid` | DEM gridding — `grid_dem` (splines in tension, GMT) |
   | `topobathy.utils` | geospatial helpers (distances, local projection) |
   | `topobathy.config` | `$DATA_DIR`-based path resolution |
   | `topobathy.data` | bundled reference tables (shipped as package data) |
@@ -124,6 +125,19 @@ from topobathy import read_jbird, Z0Field, add_tp_elevation, config
 df = read_jbird(config.m7001_source_file(), marks=["N"])
 df = add_tp_elevation(df, Z0Field.from_csv(config.default_z0_table()))
 ```
+
+## Tool: bathymetric DEM (splines in tension)
+
+Grid the T.P. soundings into a smooth DEM by the community-standard method — GMT
+`surface` (continuous-curvature splines in tension; GEBCO / NOAA), **not** TIN
+(which leaves facets and terraces contour data). See
+**[`docs/dem.md`](docs/dem.md)**.
+
+```bash
+pjsub scripts/genkai_m7001_dem.sh     # Tokyo Bay DEM -> TP/M7001_dem_tokyobay.nc
+```
+
+![M7001 DEM](docs/figures/m7001_dem_tp.png)
 
 ## Development
 

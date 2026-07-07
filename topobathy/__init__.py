@@ -23,6 +23,7 @@ from topobathy.datum import (
     add_tp_elevation,
     chart_datum_to_tp_elevation,
 )
+from topobathy.grid import grid_dem
 from topobathy.io import BBox, read_jbird, read_points, write_points
 
 try:
@@ -38,6 +39,7 @@ __all__ = [
     "Z0Field",
     "add_tp_elevation",
     "chart_datum_to_tp_elevation",
+    "grid_dem",
     "read_jbird",
     "read_points",
     "write_points",

@@ -55,6 +55,9 @@ dev = [
   "pandas-stubs>=2.2.0",
   "types-PyYAML>=6.0.12",
 ]
+# DEM gridding (GMT splines in tension). Install via mamba (environment.yml);
+# pygmt pulls the GMT C library, so conda-forge is strongly preferred over pip.
+dem = ["pygmt>=0.12"]
 
 [project.scripts]
 # Convert the JHA / Japan Coast Guard M7001 chart-datum bathymetry to T.P.
@@ -63,6 +66,8 @@ topobathy-m7001-to-tp = "topobathy.cli.m7001_to_tp:main"
 topobathy-plot-m7001-tp = "topobathy.cli.plot_m7001_tp:main"
 # Build a continuous chart-datum model (最低水面モデル) NetCDF grid (nationwide)
 topobathy-build-datum-model = "topobathy.cli.build_datum_model:main"
+# Grid M7001 T.P. soundings into a bathymetric DEM (splines in tension)
+topobathy-m7001-dem = "topobathy.cli.m7001_dem:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -18,6 +18,7 @@ dependencies:
   - pyyaml
   - chardet
   - pymupdf         # tooling: parse the JCG datum-table PDF (scripts/parse_jcg_datum_table.py)
+  - pygmt           # DEM gridding: GMT surface (splines in tension); pulls gmt
 
   # ── Geospatial / raster (added as DEM-building tools land) ──────
   # Uncomment when the raster/DEM compositing tools are implemented.
