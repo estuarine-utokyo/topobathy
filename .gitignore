@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# GENKAI/pjsub job logs
+*.sh.*.out
+*.[oe][0-9]*

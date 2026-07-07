@@ -1,0 +1,44 @@
+name: topobathy
+channels:
+  - conda-forge
+dependencies:
+  # ── Python runtime ──────────────────────────────────────────────
+  - python=3.13.*
+
+  # ── topobathy core dependencies ─────────────────────────────────
+  - numpy
+  - pandas
+  - scipy
+  - pyproj          # horizontal datum / CRS transforms
+  - xarray
+  - netcdf4
+  - pyarrow         # Parquet I/O
+  - matplotlib      # diagnostic figures
+  - tqdm
+  - pyyaml
+  - chardet
+  - pymupdf         # tooling: parse the JCG datum-table PDF (scripts/parse_jcg_datum_table.py)
+
+  # ── Geospatial / raster (added as DEM-building tools land) ──────
+  # Uncomment when the raster/DEM compositing tools are implemented.
+  # - rasterio
+  # - rioxarray
+  # - geopandas
+  # - shapely
+  # - xesmf
+
+  # ── Development tools ───────────────────────────────────────────
+  - pytest
+  - mypy
+  - black
+  - isort
+  - ruff
+  - pandas-stubs
+  - types-pyyaml
+  - ipykernel
+
+  # ── Pip: editable install of THIS source tree only ──────────────
+  #    (never pip-install regular dependencies — use conda-forge above)
+  - pip
+  - pip:
+      - -e .

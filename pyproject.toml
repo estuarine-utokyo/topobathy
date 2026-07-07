@@ -1,0 +1,95 @@
+# pyproject.toml  ── fully valid TOML 1.0
+#
+# NOTE: mamba (environment.yml) is the recommended installation method.
+#       pip is supported ONLY for `pip install -e .` (editable install of this
+#       source tree). Do NOT `pip install` regular dependencies — mixing pip and
+#       conda binaries (numpy / netCDF4 / hdf5 / pyproj ...) silently breaks the
+#       compiled stack. Add new dependencies to environment.yml and re-solve.
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "topobathy"
+version = "0.1.0"
+description = "Tools for building topo-bathymetric (DEM / bathymetry) datasets"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+
+authors = [
+  { name = "Jun Sasaki", email = "jsasaki.ece@gmail.com" }
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+
+# Core runtime dependencies. Install via mamba (environment.yml), NOT pip.
+dependencies = [
+  "numpy>=2.1.0",
+  "pandas>=2.2.0",
+  "scipy>=1.14.0",
+  "pyproj>=3.6.0",
+  "xarray>=2024.6.0",
+  "netCDF4>=1.7.0",
+  "pyarrow>=16.0.0",
+  "matplotlib>=3.9.0",
+  "tqdm>=4.66.0",
+  "PyYAML>=6.0.1",
+  "chardet>=5.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "mypy>=1.10.0",
+  "black>=24.8.0",
+  "isort>=6.0.0",
+  "ruff>=0.5.0",
+  "pandas-stubs>=2.2.0",
+  "types-PyYAML>=6.0.12",
+]
+
+[project.scripts]
+# Convert the JHA / Japan Coast Guard M7001 chart-datum bathymetry to T.P.
+topobathy-m7001-to-tp = "topobathy.cli.m7001_to_tp:main"
+# Contour maps of M7001 depth (chart datum, T.P., and their difference = Z0)
+topobathy-plot-m7001-tp = "topobathy.cli.plot_m7001_tp:main"
+# Build a continuous chart-datum model (最低水面モデル) NetCDF grid (nationwide)
+topobathy-build-datum-model = "topobathy.cli.build_datum_model:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["topobathy*"]
+
+[tool.setuptools.package-data]
+topobathy = ["data/*.csv", "data/*.yaml", "data/*.yml"]
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+
+[tool.isort]
+profile = "black"
+skip_glob = ["**/.ipynb_checkpoints/*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.mypy]
+strict = true
+strict_optional = true
+explicit_package_bases = true
+ignore_missing_imports = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
