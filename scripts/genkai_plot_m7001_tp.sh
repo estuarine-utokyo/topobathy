@@ -1,6 +1,7 @@
 #!/bin/bash
 # Render the three M7001 depth contour maps (chart datum, T.P., difference = Z0)
-# into docs/figures/ from the T.P.-converted product.
+# into docs/figures/ from the whole-sheet T.P. product (M7001_TP.parquet), gridded
+# over the default Tokyo Bay window.
 #
 # Light single-thread job (griddata over the Tokyo Bay N points + matplotlib).
 #

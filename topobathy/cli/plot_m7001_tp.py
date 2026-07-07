@@ -42,7 +42,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--tp-product",
         type=Path,
         default=None,
-        help="T.P. product parquet/csv (default: $DATA_DIR/.../TP/M7001_TP_tokyobay.parquet)",
+        help="T.P. product parquet/csv (default: $DATA_DIR/.../TP/M7001_TP.parquet)",
     )
     p.add_argument(
         "--out-dir",
@@ -59,7 +59,7 @@ def _build_parser() -> argparse.ArgumentParser:
         type=float,
         default=None,
         metavar=("LON_MIN", "LON_MAX", "LAT_MIN", "LAT_MAX"),
-        help="plot window (default: extent of the N points, padded)",
+        help="plot window (default: the Tokyo Bay window 139.55 140.30 34.90 35.75)",
     )
     p.add_argument("--nlon", type=int, default=420, help="grid columns (default: 420)")
     p.add_argument("--nlat", type=int, default=480, help="grid rows (default: 480)")
@@ -120,27 +120,31 @@ def main(argv: list[str] | None = None) -> int:
 
     product = args.tp_product
     if product is None:
-        product = config.m7001_tp_dir() / "M7001_TP_tokyobay.parquet"
+        product = config.m7001_tp_dir() / "M7001_TP.parquet"
     print(f"product: {product}", flush=True)
     df = read_points(product)
+
+    # Plot window (default: the Tokyo Bay window). Restrict the point set to the
+    # window (+ a small margin) BEFORE gridding, so the whole-sheet product does
+    # not trigger a Delaunay triangulation of all ~3.75 M points.
+    bbox = tuple(args.bbox) if args.bbox is not None else (139.55, 140.30, 34.90, 35.75)
+    pad = 0.05
+    inwin = df["lon"].between(bbox[0] - pad, bbox[1] + pad) & df["lat"].between(
+        bbox[2] - pad, bbox[3] + pad
+    )
+    df = df.loc[inwin]
 
     is_n = df["mark"].to_numpy() == "N"
     n = df.loc[is_n]
     coast = df.loc[df["mark"].isin(["L", "M"])]
     if n.empty:
-        print("ERROR: no N (depth) marks in the product.", flush=True)
+        print("ERROR: no N (depth) marks in the window.", flush=True)
         return 1
 
     lon = n["lon"].to_numpy()
     lat = n["lat"].to_numpy()
     depth_cd = n["depth_cd"].to_numpy()  # metres below chart datum
     z0 = n["z0"].to_numpy()  # T.P. - chart datum (m)
-
-    if args.bbox is not None:
-        bbox = tuple(args.bbox)
-    else:
-        pad = 0.02
-        bbox = (lon.min() - pad, lon.max() + pad, lat.min() - pad, lat.max() + pad)
     print(
         f"N points: {len(n):,}  bbox: {tuple(round(b, 3) for b in bbox)}  "
         f"depth_cd [{depth_cd.min():.1f},{depth_cd.max():.1f}] m",

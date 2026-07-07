@@ -91,28 +91,28 @@ official JCG 一覧表 + JMA anchors; leave-one-out CV **RMS 6.3 cm**). Written 
 | product | domain | contents |
 |---|---|---|
 | `M7001_TP.{csv,parquet}` | whole Southern Kanto sheet (~3.95 M pts) | point dataset (`z_tp` + `z_ell`) |
-| `M7001_TP_tokyobay.{csv,parquet}` | Tokyo Bay (`139.55 140.30 34.90 35.75`) | point dataset |
-| `M7001_chart_datum_model_*.nc` | 1′×1.5′ grids | 最低水面モデル (T.P. + ellipsoidal) |
+| `M7001_chart_datum_model_kanto_south.nc` | whole extent, 1′×1.5′ grid | 最低水面モデル (T.P. + ellipsoidal) |
 
-`z_ell` (WGS84 ellipsoidal height) = `z_tp + N` uses the GSI geoid「日本のジオイド
-2011」([`scripts/get_gsigeo.py`](scripts/get_gsigeo.py), direct download; the T.P.
-`z_tp` itself needs no geoid). Defined over Tokyo Bay/coast; NaN over the open ocean.
+`M7001_TP` is the single source of truth; a sub-region (e.g. Tokyo Bay) is just its
+bounding-box filter, with identical values. `z_ell` (WGS84 ellipsoidal height) =
+`z_tp + N` uses the GSI geoid「日本のジオイド2011」([`scripts/get_gsigeo.py`](scripts/get_gsigeo.py),
+direct download; `z_tp` itself needs no geoid); defined over Tokyo Bay/coast, NaN
+over the open ocean.
 
 ### Run
 
 Heavy for the full ~3.95 M-point sheet — run as a **GENKAI batch job**, not on the
-login node. The one script does both point datasets **and** the 最低水面モデル grids:
+login node. The one script writes the point dataset **and** the 最低水面モデル grid:
 
 ```bash
 pjsub scripts/genkai_m7001_to_tp.sh          # rigorous (TIN) pipeline -> TP/
 ```
 
-Or invoke the CLIs directly:
+Or invoke the CLIs directly (a bounding box just subsets the same result):
 
 ```bash
-topobathy-m7001-to-tp --method linear --marks N \
-    --bbox 139.55 140.30 34.90 35.75 --out-name M7001_TP_tokyobay
-topobathy-build-datum-model --bbox 139.55 140.30 34.90 35.75 \
+topobathy-m7001-to-tp --method linear --geoid          # whole sheet -> M7001_TP
+topobathy-build-datum-model --bbox 138.2 141.6 33.1 36.0 \
     --out /path/M7001_chart_datum_model.nc     # continuous 最低水面モデル (NetCDF)
 ```
 
