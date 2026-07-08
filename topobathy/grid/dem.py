@@ -28,6 +28,7 @@ from numpy.typing import ArrayLike
 
 if TYPE_CHECKING:
     import xarray as xr
+    from shapely.geometry.base import BaseGeometry
 
 __all__ = ["grid_dem"]
 
@@ -42,6 +43,7 @@ def grid_dem(
     spacing: float | str,
     tension: float = 0.35,
     mask_km: float | None = 2.0,
+    land_geom: "BaseGeometry | None" = None,
     blockmedian: bool = True,
 ) -> "xr.DataArray":
     """Grid scattered ``(lon, lat, z)`` to a DEM with splines in tension (GMT).
@@ -62,6 +64,11 @@ def grid_dem(
         Coverage mask: cells farther than this many km (great-circle) from any
         sounding are set to NaN, so the grid is not extrapolated over land / data
         gaps. ``None`` disables it.
+    land_geom
+        Optional land (Multi)Polygon (lon/lat) — grid nodes inside it are set to
+        NaN (**hydro-flattening**: clip the DEM to water at the real coastline
+        instead of a distance heuristic). Build one from OSM with
+        :func:`topobathy.grid.landmask.osm_land_geometry`.
     blockmedian
         Pre-decimate to one median sounding per cell (recommended).
 
@@ -97,8 +104,22 @@ def grid_dem(
             _coverage(grid, pts["x"].to_numpy(), pts["y"].to_numpy()) <= mask_km
         )
 
+    if land_geom is not None:
+        grid = grid.where(~_on_land(grid, land_geom))
+
     grid.name = "elevation"
     return cast("xr.DataArray", grid)
+
+
+def _on_land(grid: "xr.DataArray", land_geom: "BaseGeometry") -> np.ndarray:
+    """Boolean grid: True where the node falls inside the land geometry."""
+    from shapely import contains_xy
+
+    dim_y, dim_x = grid.dims
+    mesh_lon, mesh_lat = np.meshgrid(
+        np.asarray(grid[dim_x].values), np.asarray(grid[dim_y].values)
+    )
+    return np.asarray(contains_xy(land_geom, mesh_lon, mesh_lat), dtype=bool)
 
 
 def _coverage(

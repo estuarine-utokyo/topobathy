@@ -19,6 +19,11 @@ dependencies:
   - chardet
   - pymupdf         # tooling: parse the JCG datum-table PDF (scripts/parse_jcg_datum_table.py)
   - pygmt           # DEM gridding: GMT surface (splines in tension); pulls gmt
+  - geopandas       # DEM land mask (hydro-flattening) via xcoast
+  - shapely
+  - pyogrio
+  # xcoast — OSM-derived land mask (not on conda-forge). Install after the env:
+  #   pip install -e /path/to/xcoast   # or git+https://github.com/estuarine-utokyo/xcoast.git
 
   # ── Geospatial / raster (added as DEM-building tools land) ──────
   # Uncomment when the raster/DEM compositing tools are implemented.

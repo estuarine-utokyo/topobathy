@@ -32,13 +32,27 @@ is the appropriate standard, over TIN.
 2. **`surface`** — grid with a tension factor (~0.25–0.4 for bathymetry; `0.35`
    default). `coltypes="g"` → geographic metric, lon/lat grid.
 3. **coverage mask** — blank cells farther than `mask_km` (default 2 km) from any
-   sounding, so the grid is not extrapolated over land / data gaps.
+   sounding, so the grid is not extrapolated far into data gaps.
+4. **hydro-flattening** — clip the DEM to water at the real **OSM coastline**
+   (`land_geom`; via [`xcoast`](https://github.com/estuarine-utokyo/xcoast)), so land
+   (incl. reclaimed land / artificial islands such as Haneda, 中央防波堤) is NaN and
+   the water edge follows the true coast — not a distance buffer. OSM resolves
+   reclaimed land that coarser coastlines (GSHHG) miss.
 
 ```python
 from topobathy import grid_dem
-dem = grid_dem(lon, lat, z_tp, region=(139.55, 140.30, 34.90, 35.75),
-               spacing=0.002, tension=0.35, mask_km=2.0)   # xarray DataArray, T.P. (+up)
+from topobathy.grid import osm_land_geometry
+
+region = (139.55, 140.30, 34.90, 35.75)
+land = osm_land_geometry(region)                       # OSM land polygon (xcoast)
+dem = grid_dem(lon, lat, z_tp, region=region, spacing=0.002, tension=0.35,
+               mask_km=2.0, land_geom=land)             # xarray DataArray, T.P. (+up)
 ```
+
+The OSM land mask needs the `xcoast` package plus the OSM shapefile extracts under
+`$DATA_DIR/OSM/` (`land-polygons-split-4326`, geofabrik water); paths resolve via
+`topobathy.config.osm_land_shp` / `osm_water_shp`. `topobathy-m7001-dem --no-land-mask`
+falls back to the plain distance-coverage mask.
 
 ## Run
 
@@ -58,9 +72,9 @@ depth and is excluded (it bounds the land side).
 
 - **Tension** trades smoothness vs. faithfulness; raise it (→0.4–0.5) if the spline
   overshoots into small positive elevations in shallow corners.
-- **Hydro-flattening** (clipping land to a coastline / setting a land value) is a
-  refinement: here the coverage mask removes far-from-data land, which is adequate
-  for a water-only bathymetric DEM. A full land clip would use the `L` coastline.
+- **Hydro-flattening** clips the DEM to water at the **OSM coastline** (step 4); OSM
+  captures reclaimed land / artificial islands that GSHHG or the M7001 `L` waterline
+  may not. `--no-land-mask` reverts to the distance-coverage mask only.
 - **Compositing** multiple sources (M7001 + CUDEM/GEBCO/SRTM15plus/… under
   `$DATA_DIR/bathymetry`) follows the same GEBCO/NOAA workflow: assemble by data
   priority → tension-spline grid → mask/flatten. This is the natural next tool.

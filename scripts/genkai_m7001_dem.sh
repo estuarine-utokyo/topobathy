@@ -14,6 +14,10 @@
 set -euo pipefail
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 export GMT_SESSION_NAME="dem_${PJM_JOBID:-$$}"
+# The job calls the env python directly (no `conda activate`), so point PROJ/GDAL
+# at the env's data dirs (else geopandas/pyogrio warns "proj_create_from_database").
+export PROJ_DATA="${HOME}/mambaforge/envs/topobathy/share/proj"
+export GDAL_DATA="${HOME}/mambaforge/envs/topobathy/share/gdal"
 
 : "${DATA_DIR:?DATA_DIR unset (need '#PJM -X' so the login-shell env is passed)}"
 

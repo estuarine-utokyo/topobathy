@@ -130,8 +130,9 @@ df = add_tp_elevation(df, Z0Field.from_csv(config.default_z0_table()))
 
 Grid the T.P. soundings into a smooth DEM by the community-standard method — GMT
 `surface` (continuous-curvature splines in tension; GEBCO / NOAA), **not** TIN
-(which leaves facets and terraces contour data). See
-**[`docs/dem.md`](docs/dem.md)**.
+(which leaves facets and terraces contour data) — then **hydro-flatten** to the
+**OSM coastline** (via [`xcoast`](https://github.com/estuarine-utokyo/xcoast); clips
+land, incl. reclaimed land/islands). See **[`docs/dem.md`](docs/dem.md)**.
 
 ```bash
 pjsub scripts/genkai_m7001_dem.sh     # Tokyo Bay DEM -> TP/M7001_dem_tokyobay.nc

@@ -21,6 +21,9 @@ __all__ = [
     "m7001_tp_dir",
     "default_z0_table",
     "geoid_file",
+    "osm_land_shp",
+    "osm_water_shp",
+    "coastmask_cache_dir",
 ]
 
 
@@ -92,3 +95,20 @@ def geoid_file() -> Path:
             "to download it (「日本のジオイド2011」)."
         )
     return candidates[0]
+
+
+def osm_land_shp() -> Path:
+    """OSM global land-polygons shapefile (``$DATA_DIR/OSM/...``) for the DEM land
+    mask (via ``xcoast``). Download the OSMdata land-polygons-split-4326 extract."""
+    return get_data_dir() / "OSM" / "land-polygons-split-4326" / "land_polygons.shp"
+
+
+def osm_water_shp() -> Path:
+    """Geofabrik OSM water-polygons shapefile used by ``xcoast`` to carve inland
+    water out of the land mask (rivers/lakes stay 'not land')."""
+    return get_data_dir() / "OSM" / "geofabrik_kanto" / "gis_osm_water_a_free_1.shp"
+
+
+def coastmask_cache_dir() -> Path:
+    """Cache directory for xcoast coastmask GeoPackages."""
+    return get_data_dir() / "OSM" / "coastmask_cache"

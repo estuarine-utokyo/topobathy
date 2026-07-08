@@ -64,3 +64,24 @@ def test_grid_dem_mask_blanks_far_cells() -> None:
         lon, lat, z, region=(139.6, 140.3, 35.0, 35.6), spacing=0.02, mask_km=3.0
     )
     assert np.isnan(dem.values).any()  # the gap between clusters is blanked
+
+
+def test_grid_dem_land_geom_clips() -> None:
+    from shapely.geometry import box
+
+    lon, lat, z = _synthetic()
+    land = box(139.90, 35.15, 140.10, 35.45)  # a land box inside the region
+    dem = grid_dem(
+        lon,
+        lat,
+        z,
+        region=(139.65, 140.15, 35.05, 35.55),
+        spacing=0.02,
+        mask_km=50.0,
+        land_geom=land,
+    )
+    LON, LAT = np.meshgrid(dem["lon"].values, dem["lat"].values)
+    inside = (LON > 139.92) & (LON < 140.08) & (LAT > 35.17) & (LAT < 35.43)
+    west_water = LON < 139.80
+    assert np.all(np.isnan(dem.values[inside]))  # land cells blanked
+    assert np.isfinite(dem.values[west_water]).any()  # water cells kept

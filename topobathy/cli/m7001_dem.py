@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 
 from topobathy import config
-from topobathy.grid import grid_dem
+from topobathy.grid import grid_dem, osm_land_geometry
 from topobathy.io import read_points
 
 
@@ -65,6 +65,14 @@ def _build_parser() -> argparse.ArgumentParser:
         default=["N", "M"],
         help="marks to grid (default: N M; both carry a T.P. elevation)",
     )
+    p.add_argument(
+        "--land-mask",
+        dest="land_mask",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="clip the DEM to water at the OSM coastline (hydro-flattening, via "
+        "xcoast); --no-land-mask keeps the plain distance-coverage mask",
+    )
     p.add_argument("--out", type=Path, required=True, help="output NetCDF path")
     return p
 
@@ -89,6 +97,11 @@ def main(argv: list[str] | None = None) -> int:
         flush=True,
     )
 
+    land_geom = None
+    if args.land_mask:
+        land_geom = osm_land_geometry((w, e, s, n))
+        print("land mask: OSM coastline (xcoast), hydro-flattening", flush=True)
+
     dem = grid_dem(
         d["lon"].to_numpy(),
         d["lat"].to_numpy(),
@@ -97,6 +110,7 @@ def main(argv: list[str] | None = None) -> int:
         spacing=args.spacing,
         tension=args.tension,
         mask_km=args.mask_km,
+        land_geom=land_geom,
     )
     valid = np.isfinite(dem.values)
     print(
@@ -112,8 +126,9 @@ def main(argv: list[str] | None = None) -> int:
         "datum": "Tokyo Peil (T.P. / 東京湾平均海面)",
         "method": (
             f"GMT surface (continuous-curvature spline in tension={args.tension}); "
-            f"blockmedian pre-decimation; coverage mask {args.mask_km} km. "
-            "Standard bathymetric gridding (Smith & Wessel 1990; GEBCO Cook Book)."
+            f"blockmedian pre-decimation; coverage mask {args.mask_km} km"
+            + ("; OSM-coastline hydro-flattening (xcoast)" if args.land_mask else "")
+            + ". Standard bathymetric gridding (Smith & Wessel 1990; GEBCO Cook Book)."
         ),
         "source": "M7001 (JHA/JCG) -> T.P. via topobathy; see docs/vertical_datum.md",
         "spacing_deg": str(args.spacing),

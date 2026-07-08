@@ -55,9 +55,11 @@ dev = [
   "pandas-stubs>=2.2.0",
   "types-PyYAML>=6.0.12",
 ]
-# DEM gridding (GMT splines in tension). Install via mamba (environment.yml);
-# pygmt pulls the GMT C library, so conda-forge is strongly preferred over pip.
-dem = ["pygmt>=0.12"]
+# DEM gridding (GMT splines in tension) + OSM-coastline hydro-flattening. Install
+# via mamba (environment.yml); pygmt/geopandas pull compiled libraries (GMT, GDAL),
+# so conda-forge is strongly preferred over pip. `xcoast` (OSM land mask) is not on
+# conda-forge — pip install it: git+https://github.com/estuarine-utokyo/xcoast.git
+dem = ["pygmt>=0.12", "geopandas>=1.0", "shapely>=2.0", "pyogrio>=0.7"]
 
 [project.scripts]
 # Convert the JHA / Japan Coast Guard M7001 chart-datum bathymetry to T.P.
