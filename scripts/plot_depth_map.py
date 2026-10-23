@@ -58,11 +58,19 @@ def main() -> int:
     ap.add_argument("--cmap", default="deep", help="cmocean colormap name")
     ap.add_argument("--title", default="Inner Tokyo Bay (north of Kisarazu): depth below T.P.")
     ap.add_argument("--dpi", type=int, default=300)
+    #---> jsasaki 2026-10-23: plot other grids (e.g. the 2020 CAO 30 m lat/lon copy, Band1)
+    ap.add_argument("--var", default="elevation", help="elevation variable (+up)")
+    ap.add_argument("--source-note", default=None, help="source line under the map")
+    #<--- jsasaki 2026-10-23
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
     w, e, s, n = args.region
-    da = xr.open_dataset(args.dem)["elevation"].sel(lon=slice(w, e), lat=slice(s, n))
+    #---> jsasaki 2026-10-23: any variable name, either lat order, drop huge fill values
+    da = xr.open_dataset(args.dem)[args.var].sortby("lat").sortby("lon")
+    da = da.sel(lon=slice(w, e), lat=slice(s, n))
+    da = da.where(np.abs(da) < 1.0e4)
+    #<--- jsasaki 2026-10-23
     depth = -da
     #---> jsasaki 2026-10-23: fine steps in the shallows, --step below
     levels = np.unique(np.concatenate([
@@ -94,9 +102,12 @@ def main() -> int:
                       ticks=np.arange(0, args.vmax + 1, 5))
     cb.set_label("Depth below T.P. (m)")
     cb.ax.invert_yaxis()  # deeper downwards
-    ax.text(0.01, -0.12, f"Source: M7001 (JHA) converted to T.P., GMT surface DEM "
-            f"({args.dem.name}); land: OpenStreetMap via xcoast.",
-            transform=ax.transAxes, fontsize=7, color="#52514e")
+    # jsasaki 2026-10-23: source line can be given for non-M7001 grids
+    note = args.source_note or (f"Source: M7001 (JHA) converted to T.P., GMT surface DEM "
+                                f"({args.dem.name}); land: OpenStreetMap via xcoast.")
+    # jsasaki 2026-10-23: wrap long notes so they do not stretch the layout
+    ax.text(0.01, -0.11, note.replace("; ", "\n"), transform=ax.transAxes, fontsize=7,
+            color="#52514e", va="top")
     fig.tight_layout()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.out, dpi=args.dpi, bbox_inches="tight")
