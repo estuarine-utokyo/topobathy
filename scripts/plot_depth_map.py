@@ -72,6 +72,9 @@ def main() -> int:
     # jsasaki 2026-10-24: owner: outline of a zoom-in frame on the overview map
     ap.add_argument("--box", type=float, nargs=4, action="append", default=[],
                     metavar=("W", "E", "S", "N"), help="draw a rectangle (repeatable)")
+    # jsasaki 2026-10-24: owner: scale bar in the lower-right corner
+    ap.add_argument("--scalebar", type=float, default=None, metavar="KM",
+                    help="draw a scale bar of this length (km) in the lower-right corner")
     ap.add_argument("--vmax-pct", type=float, default=None,
                     help="set --vmax to this percentile of the water depth in the frame (ceil, m)")
     ap.add_argument("--no-note", action="store_true", help="no source line under the map")
@@ -129,6 +132,22 @@ def main() -> int:
     for bw, be, bs, bn in args.box:
         ax.add_patch(Rectangle((bw, bs), be - bw, bn - bs, fill=False, edgecolor="#d62728",
                                linewidth=1.8, zorder=10))
+    #<--- jsasaki 2026-10-24
+    #---> jsasaki 2026-10-24: --scalebar (black/white bar, label above, lower right)
+    if args.scalebar:
+        km_per_deg = 111.32 * np.cos(np.radians((s + n) / 2))
+        length = args.scalebar / km_per_deg
+        x1 = e - 0.05 * (e - w)
+        x0 = x1 - length
+        y0 = s + 0.05 * (n - s)
+        hgt = 0.012 * (n - s)
+        half = length / 2
+        for i, fc in enumerate(("black", "white")):
+            ax.add_patch(Rectangle((x0 + i * half, y0), half, hgt, facecolor=fc,
+                                   edgecolor="black", linewidth=1.0, zorder=11))
+        fsz = (args.font_size or 10) - 1
+        for xx, lab in ((x0, "0"), (x1, f"{args.scalebar:g} km")):
+            ax.text(xx, y0 + hgt * 1.8, lab, ha="center", va="bottom", fontsize=fsz, zorder=11)
     #<--- jsasaki 2026-10-24
     ax.set_xlim(w, e)
     ax.set_ylim(s, n)

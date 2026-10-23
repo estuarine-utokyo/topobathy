@@ -19,6 +19,6 @@ export PROJ_DATA="${ENV}/share/proj" GDAL_DATA="${ENV}/share/gdal"
 cd "${WORK_DIR}/Github/topobathy"
 "${ENV}/bin/python" scripts/plot_depth_map.py \
     --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m_chiba_channel.nc" \
-    --region 139.995 140.044 35.48 35.52 --vmax 20 --fine-to 20 --fill-gaps \
+    --region 139.995 140.044 35.48 35.52 --vmax 20 --fine-to 20 --fill-gaps --scalebar 1 \
     --no-title --no-note --font-size 14 --cbar-label "Depth (m)" \
     --out docs/figures/boso_ichihara_zoom_depth.png
