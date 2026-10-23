@@ -16,6 +16,8 @@ dependencies:
   - matplotlib      # diagnostic figures
   # jsasaki 2026-10-23: colour maps for depth figures (scripts/plot_depth_map.py)
   - cmocean
+  # jsasaki 2026-10-23: read the Cabinet Office .xls area tables (topobathy/io/grids.py)
+  - xlrd
   - tqdm
   - pyyaml
   - chardet
