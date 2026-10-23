@@ -49,6 +49,8 @@ def main() -> int:
     ap.add_argument("--vmax", type=float, default=30.0, help="colour-bar maximum depth (m)")
     ap.add_argument("--step", type=float, default=2.0, help="colour step (m)")
     ap.add_argument("--contour", type=float, default=5.0, help="contour interval (m), 0 = none")
+    # jsasaki 2026-10-23: owner asked for contours without depth labels by default
+    ap.add_argument("--contour-labels", action="store_true", help="label the contours")
     ap.add_argument("--cmap", default="deep", help="cmocean colormap name")
     ap.add_argument("--title", default="Inner Tokyo Bay (north of Kisarazu): depth below T.P.")
     ap.add_argument("--dpi", type=int, default=300)
@@ -68,7 +70,9 @@ def main() -> int:
         cl = np.arange(args.contour, args.vmax + 0.1, args.contour)
         cs = ax.contour(da.lon, da.lat, depth, levels=cl, colors="k", linewidths=0.4,
                         alpha=0.5)
-        ax.clabel(cs, fmt="%g", fontsize=7, inline_spacing=2)
+        # jsasaki 2026-10-23: labels only on request
+        if args.contour_labels:
+            ax.clabel(cs, fmt="%g", fontsize=7, inline_spacing=2)
     land_gdf(args.region).add_to_plain_mpl(ax, facecolor="#d9d6cf", edgecolor="#4a4a4a",
                                            linewidth=0.5, zorder=5)
     ax.set_xlim(w, e)
