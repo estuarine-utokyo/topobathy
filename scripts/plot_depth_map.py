@@ -48,6 +48,10 @@ def main() -> int:
                     required=True)
     ap.add_argument("--vmax", type=float, default=30.0, help="colour-bar maximum depth (m)")
     ap.add_argument("--step", type=float, default=2.0, help="colour step (m)")
+    # jsasaki 2026-10-23: owner asked for 1 m colour steps down to 10 m
+    ap.add_argument("--fine-to", type=float, default=10.0,
+                    help="use --fine-step colour steps from 0 m down to this depth")
+    ap.add_argument("--fine-step", type=float, default=1.0, help="colour step above --fine-to (m)")
     ap.add_argument("--contour", type=float, default=5.0, help="contour interval (m), 0 = none")
     # jsasaki 2026-10-23: owner asked for contours without depth labels by default
     ap.add_argument("--contour-labels", action="store_true", help="label the contours")
@@ -60,7 +64,11 @@ def main() -> int:
     w, e, s, n = args.region
     da = xr.open_dataset(args.dem)["elevation"].sel(lon=slice(w, e), lat=slice(s, n))
     depth = -da
-    levels = np.arange(0.0, args.vmax + args.step / 2, args.step)
+    #---> jsasaki 2026-10-23: fine steps in the shallows, --step below
+    levels = np.unique(np.concatenate([
+        np.arange(0.0, args.fine_to, args.fine_step),
+        np.arange(args.fine_to, args.vmax + args.step / 2, args.step)]))
+    #<--- jsasaki 2026-10-23
     cmap = getattr(cmocean.cm, args.cmap)
 
     fig, ax = plt.subplots(figsize=(8.0, 6.4))
@@ -81,7 +89,9 @@ def main() -> int:
     ax.set_xlabel("Longitude (°E)")
     ax.set_ylabel("Latitude (°N)")
     ax.set_title(args.title, loc="left", fontsize=11)
-    cb = fig.colorbar(cf, ax=ax, shrink=0.85, pad=0.02)
+    # jsasaki 2026-10-23: keep the colour bar linear in depth with unequal steps
+    cb = fig.colorbar(cf, ax=ax, shrink=0.85, pad=0.02, spacing="proportional",
+                      ticks=np.arange(0, args.vmax + 1, 5))
     cb.set_label("Depth below T.P. (m)")
     cb.ax.invert_yaxis()  # deeper downwards
     ax.text(0.01, -0.12, f"Source: M7001 (JHA) converted to T.P., GMT surface DEM "
