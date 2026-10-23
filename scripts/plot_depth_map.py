@@ -61,6 +61,8 @@ def main() -> int:
     #---> jsasaki 2026-10-23: plot other grids (e.g. the 2020 CAO 30 m lat/lon copy, Band1)
     ap.add_argument("--var", default="elevation", help="elevation variable (+up)")
     ap.add_argument("--source-note", default=None, help="source line under the map")
+    # jsasaki 2026-10-23: grids whose vertical datum is not T.P.
+    ap.add_argument("--cbar-label", default="Depth below T.P. (m)")
     #<--- jsasaki 2026-10-23
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
@@ -98,9 +100,12 @@ def main() -> int:
     ax.set_ylabel("Latitude (°N)")
     ax.set_title(args.title, loc="left", fontsize=11)
     # jsasaki 2026-10-23: keep the colour bar linear in depth with unequal steps
-    cb = fig.colorbar(cf, ax=ax, shrink=0.85, pad=0.02, spacing="proportional",
+    # jsasaki 2026-10-23: colour bar as tall as the map, also for wide frames
+    cax = ax.inset_axes([1.03, 0.0, 0.035, 1.0])
+    cb = fig.colorbar(cf, cax=cax, spacing="proportional",
                       ticks=np.arange(0, args.vmax + 1, 5))
-    cb.set_label("Depth below T.P. (m)")
+    # jsasaki 2026-10-23: label from --cbar-label
+    cb.set_label(args.cbar_label)
     cb.ax.invert_yaxis()  # deeper downwards
     # jsasaki 2026-10-23: source line can be given for non-M7001 grids
     note = args.source_note or (f"Source: M7001 (JHA) converted to T.P., GMT surface DEM "
