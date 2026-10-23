@@ -1,5 +1,5 @@
 #!/bin/bash
-# M7001 50 m T.P. DEM with the Chiba channel corrected from the Endo (2020) 50 m grid,
+# M7001 50 m T.P. DEM with the Chiba channel corrected (smooth flats + Endo channel cut),
 # then maps: whole inner bay (corrected) and a channel close-up before/after.
 #
 #   pjsub -o logs/m7001_chiba_channel.%j.log scripts/genkai_m7001_chiba_channel.sh
