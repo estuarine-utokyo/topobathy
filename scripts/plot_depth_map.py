@@ -65,6 +65,12 @@ def main() -> int:
     ap.add_argument("--cbar-label", default="Depth below T.P. (m)")
     #---> jsasaki 2026-10-23: owner: maps without title / source line, larger labels
     ap.add_argument("--no-title", action="store_true", help="no title above the map")
+    # jsasaki 2026-10-24: owner: colour range from a percentile of the depth in the frame
+    # jsasaki 2026-10-24: display-only fill of the no-data sliver along the OSM coastline
+    ap.add_argument("--fill-gaps", action="store_true",
+                    help="fill NaN cells with the nearest value (plot only; land is drawn on top)")
+    ap.add_argument("--vmax-pct", type=float, default=None,
+                    help="set --vmax to this percentile of the water depth in the frame (ceil, m)")
     ap.add_argument("--no-note", action="store_true", help="no source line under the map")
     ap.add_argument("--font-size", type=float, default=None,
                     help="axis/colour-bar label size (tick labels 1 pt smaller)")
@@ -80,6 +86,22 @@ def main() -> int:
     da = da.where(np.abs(da) < 1.0e4)
     #<--- jsasaki 2026-10-23
     depth = -da
+    #---> jsasaki 2026-10-24: --vmax-pct; colour-bar tick spacing follows vmax
+    if args.vmax_pct is not None:
+        wet = depth.values[np.isfinite(depth.values) & (depth.values > 0)]
+        args.vmax = float(np.ceil(np.percentile(wet, args.vmax_pct)))
+        print(f"vmax = {args.vmax:g} m ({args.vmax_pct:g}th percentile of {wet.size} wet cells, "
+              f"max {wet.max():.2f} m)")
+    tick_step = 5 if args.vmax >= 15 else (2 if args.vmax >= 6 else 1)
+    #<--- jsasaki 2026-10-24
+    #---> jsasaki 2026-10-24: --fill-gaps after --vmax-pct (nearest value; OSM land then covers real land)
+    if args.fill_gaps:
+        from scipy.ndimage import distance_transform_edt
+        v = depth.values
+        _, (iy, ix) = distance_transform_edt(~np.isfinite(v), return_indices=True)
+        depth = depth.copy(data=v[iy, ix])
+        da = -depth
+    #<--- jsasaki 2026-10-24
     #---> jsasaki 2026-10-23: fine steps in the shallows, --step below
     levels = np.unique(np.concatenate([
         np.arange(0.0, args.fine_to, args.fine_step),
@@ -117,7 +139,8 @@ def main() -> int:
     # jsasaki 2026-10-23: colour bar as tall as the map, also for wide frames
     cax = ax.inset_axes([1.03, 0.0, 0.035, 1.0])
     cb = fig.colorbar(cf, cax=cax, spacing="proportional",
-                      ticks=np.arange(0, args.vmax + 1, 5))
+                      # jsasaki 2026-10-24: tick spacing from vmax
+                      ticks=np.arange(0, args.vmax + 0.5, tick_step))
     # jsasaki 2026-10-23: label from --cbar-label
     cb.set_label(args.cbar_label, fontsize=fs)
     # jsasaki 2026-10-23: colour-bar ticks follow --font-size
