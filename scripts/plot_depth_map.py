@@ -63,6 +63,12 @@ def main() -> int:
     ap.add_argument("--source-note", default=None, help="source line under the map")
     # jsasaki 2026-10-23: grids whose vertical datum is not T.P.
     ap.add_argument("--cbar-label", default="Depth below T.P. (m)")
+    #---> jsasaki 2026-10-23: owner: maps without title / source line, larger labels
+    ap.add_argument("--no-title", action="store_true", help="no title above the map")
+    ap.add_argument("--no-note", action="store_true", help="no source line under the map")
+    ap.add_argument("--font-size", type=float, default=None,
+                    help="axis/colour-bar label size (tick labels 1 pt smaller)")
+    #<--- jsasaki 2026-10-23
     #<--- jsasaki 2026-10-23
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
@@ -98,23 +104,34 @@ def main() -> int:
     ax.set_aspect(1.0 / np.cos(np.radians((s + n) / 2)))
     # jsasaki 2026-10-23: plain degrees on small frames (no "+1.4e2" offset)
     ax.ticklabel_format(useOffset=False, style="plain")
-    ax.set_xlabel("Longitude (°E)")
-    ax.set_ylabel("Latitude (°N)")
-    ax.set_title(args.title, loc="left", fontsize=11)
+    #---> jsasaki 2026-10-23: optional title and label size
+    fs = args.font_size
+    ax.set_xlabel("Longitude (°E)", fontsize=fs)
+    ax.set_ylabel("Latitude (°N)", fontsize=fs)
+    if fs:
+        ax.tick_params(labelsize=fs - 1)
+    if not args.no_title:
+        ax.set_title(args.title, loc="left", fontsize=11)
+    #<--- jsasaki 2026-10-23
     # jsasaki 2026-10-23: keep the colour bar linear in depth with unequal steps
     # jsasaki 2026-10-23: colour bar as tall as the map, also for wide frames
     cax = ax.inset_axes([1.03, 0.0, 0.035, 1.0])
     cb = fig.colorbar(cf, cax=cax, spacing="proportional",
                       ticks=np.arange(0, args.vmax + 1, 5))
     # jsasaki 2026-10-23: label from --cbar-label
-    cb.set_label(args.cbar_label)
+    cb.set_label(args.cbar_label, fontsize=fs)
+    # jsasaki 2026-10-23: colour-bar ticks follow --font-size
+    if fs:
+        cb.ax.tick_params(labelsize=fs - 1)
     cb.ax.invert_yaxis()  # deeper downwards
     # jsasaki 2026-10-23: source line can be given for non-M7001 grids
     note = args.source_note or (f"Source: M7001 (JHA) converted to T.P., GMT surface DEM "
                                 f"({args.dem.name}); land: OpenStreetMap via xcoast.")
     # jsasaki 2026-10-23: wrap long notes so they do not stretch the layout
-    ax.text(0.01, -0.11, note.replace("; ", "\n"), transform=ax.transAxes, fontsize=7,
-            color="#52514e", va="top")
+    # jsasaki 2026-10-23: --no-note drops the source line
+    if not args.no_note:
+        ax.text(0.01, -0.11, note.replace("; ", "\n"), transform=ax.transAxes, fontsize=7,
+                color="#52514e", va="top")
     fig.tight_layout()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.out, dpi=args.dpi, bbox_inches="tight")
