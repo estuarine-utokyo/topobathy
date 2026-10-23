@@ -96,6 +96,8 @@ def main() -> int:
     ax.set_xlim(w, e)
     ax.set_ylim(s, n)
     ax.set_aspect(1.0 / np.cos(np.radians((s + n) / 2)))
+    # jsasaki 2026-10-23: plain degrees on small frames (no "+1.4e2" offset)
+    ax.ticklabel_format(useOffset=False, style="plain")
     ax.set_xlabel("Longitude (°E)")
     ax.set_ylabel("Latitude (°N)")
     ax.set_title(args.title, loc="left", fontsize=11)
