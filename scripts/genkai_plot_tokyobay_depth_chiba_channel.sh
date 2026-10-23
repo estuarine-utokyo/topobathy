@@ -19,5 +19,5 @@ export PROJ_DATA="${ENV}/share/proj" GDAL_DATA="${ENV}/share/gdal"
 cd "${WORK_DIR}/Github/topobathy"
 "${ENV}/bin/python" scripts/plot_depth_map.py \
     --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m_chiba_channel.nc" \
-    --region 139.60 140.15 35.20 35.72 --vmax 30 --no-title --no-note --font-size 14 \
+    --region 139.60 140.15 35.20 35.72 --vmax 30 --no-title --no-note --font-size 14 --cbar-label "Depth (m)" \
     --out docs/figures/tokyobay_depth_tp_chiba_channel.png
