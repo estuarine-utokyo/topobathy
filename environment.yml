@@ -14,6 +14,8 @@ dependencies:
   - netcdf4
   - pyarrow         # Parquet I/O
   - matplotlib      # diagnostic figures
+  # jsasaki 2026-10-23: colour maps for depth figures (scripts/plot_depth_map.py)
+  - cmocean
   - tqdm
   - pyyaml
   - chardet
