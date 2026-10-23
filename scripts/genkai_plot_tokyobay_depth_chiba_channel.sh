@@ -20,4 +20,4 @@ cd "${WORK_DIR}/Github/topobathy"
 "${ENV}/bin/python" scripts/plot_depth_map.py \
     --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m_chiba_channel.nc" \
     --region 139.60 140.15 35.20 35.72 --vmax 30 --no-title --no-note --font-size 14 --cbar-label "Depth (m)" --box 139.995 140.044 35.48 35.52 \
-    --out docs/figures/tokyobay_depth_tp_chiba_channel.png
+    --out docs/figures/tokyobay_depth_tp_chiba_channel_boso_box.png
