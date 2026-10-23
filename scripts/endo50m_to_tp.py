@@ -10,9 +10,9 @@ Check: dredged pits are being back-filled and harbours/channels are dredged, so 
 there changed between the surveys. Only flat seabed is compared with the M7001 T.P. DEM:
 both depths in [--zmin, --zmax], local slope of both below --max-slope, and
 |difference| below --max-diff (drops residual pits). The median offset on the flats is
-printed overall, by depth band and by sub-area; the conversion uses --shift (default the
-A.P. value 1.134 m), and the script stops if the flat-seabed median is further than
---tolerance from it, rather than writing a doubtful product.
+printed overall, by depth band and by sub-area. M7001 is taken as correct: the
+conversion shifts by minus the flat-seabed median (--shift flat, the default), and the
+script stops if that shift is further than --tolerance from the A.P. value 1.134 m.
 
     python scripts/endo50m_to_tp.py --src .../endo_50m_lonlat.nc --out .../endo_50m_lonlat_tp.nc
 """
@@ -44,8 +44,10 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--shift", type=float, default=AP_BELOW_TP,
-                    help="m added to depth (A.P. -> T.P. = 1.134)")
+    # jsasaki 2026-10-23: owner: take M7001 as correct, shift by the flat-seabed median
+    ap.add_argument("--shift", default="flat",
+                    help="m added to depth, or 'flat' = minus the flat-seabed median "
+                         "Endo - M7001 (default); A.P. -> T.P. would be 1.134")
     ap.add_argument("--zmin", type=float, default=3.0)
     ap.add_argument("--zmax", type=float, default=25.0)
     ap.add_argument("--max-slope", type=float, default=0.002, help="m/m (0.1 m per 50 m)")
@@ -87,22 +89,33 @@ def main() -> int:
         print(f"  flat, {name}: {stats(flat & sel)}")
 
     med = float(np.median(diff[flat]))
-    print(f"flat-seabed median Endo - M7001 = {med:+.3f} m; "
-          f"A.P. hypothesis expects {-args.shift:+.3f} m")
-    if not np.isfinite(med) or abs(med + args.shift) > args.tolerance:
-        raise SystemExit(f"flat-seabed offset {med:+.3f} m is more than {args.tolerance} m "
-                         f"from {-args.shift:+.3f} m; not writing {args.out}")
+    #---> jsasaki 2026-10-23: shift from the flats (M7001 taken as correct); the A.P. value
+    # is kept as a plausibility check only
+    if not np.isfinite(med):
+        raise SystemExit(f"no flat-seabed cells; not writing {args.out}")
+    shift = round(-med, 3) if args.shift == "flat" else float(args.shift)
+    print(f"flat-seabed median Endo - M7001 = {med:+.3f} m; shift applied = {shift:+.3f} m; "
+          f"A.P. would be {AP_BELOW_TP:+.3f} m")
+    if abs(shift - AP_BELOW_TP) > args.tolerance:
+        raise SystemExit(f"shift {shift:+.3f} m is more than {args.tolerance} m from the "
+                         f"A.P. offset {AP_BELOW_TP} m; not writing {args.out}")
+    args.shift = shift
+    #<--- jsasaki 2026-10-23
 
     elev_tp = (ds["elevation"].astype("float64") - args.shift).astype("float32")
     elev_tp.attrs = {"units": "m", "positive": "up",
                      "long_name": "elevation above T.P. (negative = depth below T.P.)",
                      "vertical_datum": "T.P.",
-                     "conversion": f"elevation(T.P.) = elevation(A.P.) - {args.shift} m "
-                                   "(A.P. 0 m = T.P. -1.134 m)"}
+                     # jsasaki 2026-10-23: record the flat-seabed shift, not the A.P. value
+                     "conversion": f"elevation(T.P.) = elevation(source) - {args.shift} m, "
+                                   "shift = flat-seabed median offset from M7001 (T.P.); "
+                                   "source datum probably A.P. (A.P. 0 m = T.P. -1.134 m)"}
     out = xr.Dataset({"elevation": elev_tp}, coords={"lon": ds.lon, "lat": ds.lat},
                      attrs=dict(ds.attrs))
     out.attrs["history"] = (ds.attrs.get("history", "") +
-                            f"; A.P. -> T.P. (-{args.shift} m), scripts/endo50m_to_tp.py")
+                            # jsasaki 2026-10-23: shift fitted to M7001 on flat seabed
+                            f"; to T.P. by -{args.shift} m fitted to M7001 on flat seabed, "
+                            "scripts/endo50m_to_tp.py")
     out.attrs["datum_check"] = (f"flat seabed vs M7001 T.P. before conversion: median "
                                 f"{med:+.3f} m (Endo - M7001 depth), n={int(flat.sum())}")
     args.out.parent.mkdir(parents=True, exist_ok=True)
