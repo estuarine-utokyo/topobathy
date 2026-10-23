@@ -1,6 +1,6 @@
 #!/bin/bash
 # Tokyo Bay depth map (T.P.) from M7001 with the Chiba channel corrected, south to
-# 35.2 N (Yokosuka): no title, no source line, larger labels.
+# 35.2 N (Yokosuka): no title, no source line, larger labels, Boso close-up frame outlined.
 #
 #   pjsub -o logs/plot_tokyobay_depth_chiba_channel.%j.log scripts/genkai_plot_tokyobay_depth_chiba_channel.sh
 #
@@ -19,5 +19,5 @@ export PROJ_DATA="${ENV}/share/proj" GDAL_DATA="${ENV}/share/gdal"
 cd "${WORK_DIR}/Github/topobathy"
 "${ENV}/bin/python" scripts/plot_depth_map.py \
     --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m_chiba_channel.nc" \
-    --region 139.60 140.15 35.20 35.72 --vmax 30 --no-title --no-note --font-size 14 --cbar-label "Depth (m)" \
+    --region 139.60 140.15 35.20 35.72 --vmax 30 --no-title --no-note --font-size 14 --cbar-label "Depth (m)" --box 139.995 140.044 35.48 35.52 \
     --out docs/figures/tokyobay_depth_tp_chiba_channel.png

@@ -69,6 +69,9 @@ def main() -> int:
     # jsasaki 2026-10-24: display-only fill of the no-data sliver along the OSM coastline
     ap.add_argument("--fill-gaps", action="store_true",
                     help="fill NaN cells with the nearest value (plot only; land is drawn on top)")
+    # jsasaki 2026-10-24: owner: outline of a zoom-in frame on the overview map
+    ap.add_argument("--box", type=float, nargs=4, action="append", default=[],
+                    metavar=("W", "E", "S", "N"), help="draw a rectangle (repeatable)")
     ap.add_argument("--vmax-pct", type=float, default=None,
                     help="set --vmax to this percentile of the water depth in the frame (ceil, m)")
     ap.add_argument("--no-note", action="store_true", help="no source line under the map")
@@ -121,6 +124,12 @@ def main() -> int:
             ax.clabel(cs, fmt="%g", fontsize=7, inline_spacing=2)
     land_gdf(args.region).add_to_plain_mpl(ax, facecolor="#d9d6cf", edgecolor="#4a4a4a",
                                            linewidth=0.5, zorder=5)
+    #---> jsasaki 2026-10-24: --box rectangles above the land layer
+    from matplotlib.patches import Rectangle
+    for bw, be, bs, bn in args.box:
+        ax.add_patch(Rectangle((bw, bs), be - bw, bn - bs, fill=False, edgecolor="#d62728",
+                               linewidth=1.8, zorder=10))
+    #<--- jsasaki 2026-10-24
     ax.set_xlim(w, e)
     ax.set_ylim(s, n)
     ax.set_aspect(1.0 / np.cos(np.radians((s + n) / 2)))
