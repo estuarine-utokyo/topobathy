@@ -87,6 +87,9 @@ def main() -> int:
     # jsasaki 2026-10-24: owner: steep mounds only (sandy tops in a muddy seabed)
     ap.add_argument("--mound-min-slope", type=float, default=0.0,
                     help="minimum mean flank slope = prominence / (base width / 2) (m/m)")
+    # jsasaki 2026-10-24: owner: criteria text under the map by default
+    ap.add_argument("--no-mound-label", action="store_true",
+                    help="do not write the mound criteria under the map")
     ap.add_argument("--mound-width", type=float, nargs=2, default=None, metavar=("MIN", "MAX"),
                     help="base width range (m, equivalent-circle diameter)")
     #<--- jsasaki 2026-10-24
@@ -172,6 +175,18 @@ def main() -> int:
         if found:
             ax.scatter([m["lon"] for m in found], [m["lat"] for m in found], s=110,
                        facecolors="none", edgecolors="#d62728", linewidths=1.8, zorder=12)
+        #---> jsasaki 2026-10-24: short criteria line under the map (default on)
+        if not args.no_mound_label:
+            z0, z1 = args.mound_depth
+            parts = [f"top {z0:g}\u2013{z1:g} m", f"rise \u2265{args.mound_prominence:g} m"]
+            if args.mound_min_slope > 0:
+                parts.append(f"slope \u22651:{1 / args.mound_min_slope:.0f}")
+            if args.mound_width:
+                parts.append(f"width {args.mound_width[0]:g}\u2013{args.mound_width[1]:g} m")
+            parts.append(f"\u2264{args.mound_shore_dist / 1000:g} km from shore")
+            ax.text(0.0, -0.135, "\u25cb Mounds: " + ", ".join(parts), transform=ax.transAxes,
+                    ha="left", va="top", fontsize=args.font_size or 12, color="#d62728")
+        #<--- jsasaki 2026-10-24
         if args.mound_csv:
             args.mound_csv.parent.mkdir(parents=True, exist_ok=True)
             with open(args.mound_csv, "w", newline="") as f:
