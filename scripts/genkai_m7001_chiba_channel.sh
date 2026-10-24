@@ -28,6 +28,7 @@ NOTE="Source: M7001 (JHA) converted to T.P., GMT surface DEM; Chiba channel from
 "${PY}" scripts/plot_depth_map.py --dem "${OUT}" --region 139.94 140.12 35.52 35.62 --vmax 30 \
     --title "Chiba channel: M7001 corrected" --source-note "${NOTE}" \
     --out docs/figures/chiba_channel_m7001_corrected.png
-"${PY}" scripts/plot_depth_map.py --dem "${TP}/M7001_dem_tokyobay_50m.nc" \
+# jsasaki 2026-10-24: the M7001-only DEM was renamed when Futtsu took the default name
+"${PY}" scripts/plot_depth_map.py --dem "${TP}/M7001_dem_tokyobay_50m_m7001_only.nc" \
     --region 139.94 140.12 35.52 35.62 --vmax 30 --title "Chiba channel: M7001 original" \
     --out docs/figures/chiba_channel_m7001_original.png
