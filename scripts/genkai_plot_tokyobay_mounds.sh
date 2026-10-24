@@ -1,5 +1,5 @@
 #!/bin/bash
-# Tokyo Bay depth map (T.P., M7001 with the Chiba channel corrected, south to 35.2 N)
+# Tokyo Bay depth map (T.P., 50 m DEM: M7001 + Chiba channel + Futtsu, south to 35.2 N)
 # with the seabed mounds of the Boso close-up criteria circled: summit 7-14 m, >= 1 m
 # above the surrounding seabed, <= 2 km from shore, mean slope of the upper half >= 1:50.
 # Excluded: Umi-hotaru (Tokyo Bay Aqua-Line artificial island, 139.871 E 35.464 N; box
@@ -22,8 +22,9 @@ export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 ENV="${WORK_DIR}/mambaforge/envs/topobathy"
 export PROJ_DATA="${ENV}/share/proj" GDAL_DATA="${ENV}/share/gdal"
 cd "${WORK_DIR}/Github/topobathy"
-"${ENV}/bin/python" scripts/plot_depth_map.py \
-    --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m_chiba_channel.nc" \
+# jsasaki 2026-10-24: the default DEM now includes Futtsu; medium PNG (150 dpi)
+"${ENV}/bin/python" scripts/plot_depth_map.py --dpi 150 \
+    --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m.nc" \
     --region 139.60 140.15 35.20 35.72 --vmax 30 \
     --mounds --mound-depth 7 14 --mound-prominence 1 --mound-shore-dist 2000 --mound-min-slope 0.02 \
     --mound-exclude-box 139.862 139.880 35.460 35.472 \

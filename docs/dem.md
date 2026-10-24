@@ -179,12 +179,19 @@ checks above it was renamed to the default name and the M7001-only grid to
 `M7001_dem_tokyobay_50m_m7001_only.nc`. To rebuild: `pjsub scripts/genkai_futtsu_jfa_merge.sh`,
 check, then rename the same way.
 
-Before / after ([`figures/futtsu_merge_before.png`](figures/futtsu_merge_before.png),
-[`figures/futtsu_merge_after.png`](figures/futtsu_merge_after.png); red box = survey
-footprint) and the difference
-([`figures/futtsu_merge_diff.png`](figures/futtsu_merge_diff.png)):
+Before | after | change, red box = survey footprint
+([`scripts/genkai_plot_futtsu_compare.sh`](../scripts/genkai_plot_futtsu_compare.sh)):
 
-![Futtsu after the merge](figures/futtsu_merge_after.png)
+![Futtsu before and after the merge, and the change](figures/futtsu_merge_compare.png)
+
+Single maps at full size: [`figures/futtsu_merge_before.png`](figures/futtsu_merge_before.png),
+[`figures/futtsu_merge_after.png`](figures/futtsu_merge_after.png),
+[`figures/futtsu_merge_diff.png`](figures/futtsu_merge_diff.png).
+
+**Figures drawn from the default DEM** (redrawn 2026-10-24 at 150 dpi, ≈ 1000 px wide):
+`figures/tokyobay_depth_tp_chiba_channel.png`, `..._boso_box.png` and `..._mounds.png`
+(the file names keep `chiba_channel` from before the Futtsu merge; the content is the
+default DEM). The inner-bay and Boso close-up maps do not reach Futtsu and were not redrawn.
 
 ## Notes & refinements
 

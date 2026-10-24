@@ -18,8 +18,8 @@ an argument; nothing is specific to Tokyo Bay.
 *Figure 1. Seabed mounds (red circles) on the T.P. depth map of Tokyo Bay, 139.60–140.15 E,
 35.20–35.72 N: summit 7–14 m deep, ≥ 1 m above the surrounding seabed, ≤ 2 km from
 shore, mean upper-flank slope ≥ 1:50, no charted rock within 300 m; Umi-hotaru excluded.
-14 mounds. Depth: M7001 50 m DEM (JHA, converted to T.P.) with the Chiba channel
-corrected. Full resolution: [`figures/tokyobay_depth_tp_chiba_channel_mounds.png`](figures/tokyobay_depth_tp_chiba_channel_mounds.png).*
+14 mounds. Depth: the 50 m Tokyo Bay DEM `M7001_dem_tokyobay_50m.nc` (M7001 converted to
+T.P., Chiba channel corrected, Futtsu 2022 survey merged; see [`dem.md`](dem.md)). Full resolution: [`figures/tokyobay_depth_tp_chiba_channel_mounds.png`](figures/tokyobay_depth_tp_chiba_channel_mounds.png).*
 
 ## Method
 
@@ -91,7 +91,7 @@ Map with marked mounds (GENKAI: run through the job scripts above, `pjsub`):
 
 ```bash
 python scripts/plot_depth_map.py \
-    --dem $DATA_DIR/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m_chiba_channel.nc \
+    --dem $DATA_DIR/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m.nc \
     --region 139.60 140.15 35.20 35.72 --vmax 30 \
     --mounds --mound-depth 7 14 --mound-prominence 1 --mound-shore-dist 2000 \
     --mound-min-slope 0.02 \
