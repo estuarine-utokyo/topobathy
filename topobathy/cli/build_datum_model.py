@@ -16,7 +16,7 @@ Example (Tokyo Bay, JCG 1′×1.5′ resolution)::
 
     topobathy-build-datum-model --bbox 139.55 140.30 34.90 35.75 \
         --dlat 0.016667 --dlon 0.025 --method linear \
-        --out $DATA_DIR/bathymetry/M7001/TP/M7001_chart_datum_model.nc
+        --out $DATA_DIR/geodata/bathymetry/M7001/TP/M7001_chart_datum_model.nc
 """
 
 from __future__ import annotations

@@ -63,7 +63,7 @@ correction, authoritative source citations (JMA 潮位表 / JCG harmonic constan
 commercial-licensing notice, and the depth contour maps (chart datum, T.P., and
 their difference = Z0).
 
-**Output** → `$DATA_DIR/bathymetry/M7001/TP/` as `<name>.{csv,parquet}` plus a
+**Output** → `$DATA_DIR/geodata/bathymetry/M7001/TP/` as `<name>.{csv,parquet}` plus a
 `.README.md` sidecar. Columns:
 
 | column | meaning |
@@ -87,7 +87,7 @@ Two products are built (see `scripts/genkai_m7001_to_tp.sh`):
 
 Converted by the rigorous JCG-ERS method (`linear`/TIN of 85 stations — the
 official JCG 一覧表 + JMA anchors; leave-one-out CV **RMS 6.3 cm**). Written to
-`$DATA_DIR/bathymetry/M7001/TP/`:
+`$DATA_DIR/geodata/bathymetry/M7001/TP/`:
 
 | product | domain | contents |
 |---|---|---|

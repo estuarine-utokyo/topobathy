@@ -8,7 +8,7 @@ as an **ellipsoidal** height (for GNSS / ellipsoidally-referenced surveys):
 
 The GSIGEO2011 grid is distributed by GSI (国土地理院) as ``gsigeo2011_ver2_x.asc``.
 It is **not** bundled here; download it once (direct, no login) with
-``scripts/get_gsigeo.py`` → ``$DATA_DIR/geoid/``. This loader parses the standard
+``scripts/get_gsigeo.py`` → ``$DATA_DIR/geodata/geoid/``. This loader parses the standard
 ASCII format:
 
     header:  glamn glomn dgla dglo nla nlo [kind] [version]

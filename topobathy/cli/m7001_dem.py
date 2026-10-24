@@ -10,7 +10,7 @@ contours without terracing. Output: a CF NetCDF grid.
 Example (Tokyo Bay, ~180 m grid)::
 
     topobathy-m7001-dem --region 139.55 140.30 34.90 35.75 --spacing 0.002 \
-        --out $DATA_DIR/bathymetry/M7001/TP/M7001_dem_tokyobay.nc
+        --out $DATA_DIR/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay.nc
 """
 
 from __future__ import annotations

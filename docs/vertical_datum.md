@@ -82,7 +82,7 @@ This mirrors the JCG ERS "最低水面モデル" construction (Shiozawa et al. 2
 3. **`GeoidModel`** — the **ellipsoidal branch**. Download the GSI geoid
    「日本のジオイド2011」once with
    [`scripts/get_gsigeo.py`](../scripts/get_gsigeo.py) (direct, no login →
-   `$DATA_DIR/geoid/gsigeo2011_ver2_2.asc`); then a T.P. height plus the geoid `N`
+   `$DATA_DIR/geodata/geoid/gsigeo2011_ver2_2.asc`); then a T.P. height plus the geoid `N`
    gives the WGS84 ellipsoidal height:
    ```python
    from topobathy import config, GeoidModel

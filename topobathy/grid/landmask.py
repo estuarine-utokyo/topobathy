@@ -6,7 +6,7 @@ a crude distance-from-data buffer). OSM resolves reclaimed land / artificial isl
 (e.g. Haneda, 中央防波堤) that coarser coastlines (GSHHG) miss.
 
 Requires the standalone ``xcoast`` package (OSM land masking) plus ``geopandas`` /
-``shapely`` / ``pyogrio``, and the OSM shapefile extracts under ``$DATA_DIR/OSM/``
+``shapely`` / ``pyogrio``, and the OSM shapefile extracts under ``$DATA_DIR/geodata/OSM/``
 (see :func:`topobathy.config.osm_land_shp`). Install ``xcoast`` with
 ``pip install -e /path/to/xcoast`` (or ``git+https://github.com/estuarine-utokyo/xcoast.git``).
 """
@@ -35,7 +35,7 @@ def osm_land_geometry(
     """Return the OSM land (Multi)Polygon over ``region`` = ``(W, E, S, N)``.
 
     Parameters mirror :class:`xcoast.CoastmaskConfig`; paths default to the
-    ``$DATA_DIR/OSM`` extracts (:mod:`topobathy.config`). ``remove_orphan_islands``
+    ``$DATA_DIR/geodata/OSM`` extracts (:mod:`topobathy.config`). ``remove_orphan_islands``
     defaults to ``False`` here so small islands stay masked as land.
     """
     import xcoast

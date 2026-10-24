@@ -220,3 +220,6 @@ __marimo__/
 # GENKAI/pjsub job logs
 *.sh.*.out
 *.[oe][0-9]*
+
+# jsasaki 2026-10-24: job logs and scratch figures written by the GENKAI job scripts
+logs/

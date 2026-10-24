@@ -2,7 +2,7 @@
 # Rigorous M7001 chart-datum -> T.P. pipeline (Japan Coast Guard ERS method):
 # TIN (linear) interpolation of the 85-station JMA/JCG datum table -> the whole-sheet
 # point dataset and the continuous 最低水面モデル grid, written to
-# $DATA_DIR/bathymetry/M7001/TP/. See docs/vertical_datum.md.
+# $DATA_DIR/geodata/bathymetry/M7001/TP/. See docs/vertical_datum.md.
 #
 # Light single-thread NumPy job (parse ~3.95 M fixed-width records + TIN + I/O).
 # Runs on the GENKAI shared sub-node pool; if the estimated start (pjstat
@@ -23,7 +23,8 @@ export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 
 PY="${HOME}/mambaforge/envs/topobathy/bin/python"
 cd "${HOME}/Github/topobathy"
-TP="${DATA_DIR}/bathymetry/M7001/TP"
+# jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
+TP="${DATA_DIR}/geodata/bathymetry/M7001/TP"
 
 # Rigorous interpolation = linear (TIN), the JCG ERS method. Override e.g. METHOD=idw.
 METHOD="${METHOD:-linear}"
@@ -32,7 +33,8 @@ KS_BBOX="138.20 141.60 33.10 36.00"          # whole Kanto-South extent
 # GSI geoid (「日本のジオイド2011」) for the ellipsoidal-height branch; download it
 # once with scripts/get_gsigeo.py. If absent, the products are T.P.-only (the T.P.
 # conversion never needs the geoid).
-GEOID_ASC="$(ls "${DATA_DIR}"/geoid/gsigeo2011*.asc 2>/dev/null | sort -r | head -1 || true)"
+# jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
+GEOID_ASC="$(ls "${DATA_DIR}"/geodata/geoid/gsigeo2011*.asc 2>/dev/null | sort -r | head -1 || true)"
 [ -n "${GEOID_ASC}" ] && echo "geoid: ${GEOID_ASC}" || echo "geoid: (none; T.P.-only products)"
 CONV_GEOID=(); [ -n "${GEOID_ASC}" ] && CONV_GEOID=(--geoid "${GEOID_ASC}")
 

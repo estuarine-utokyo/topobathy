@@ -4,7 +4,7 @@ Reads the M7001 (Southern Kanto) J-BIRD ASCII file (referenced to 基本水準�
 chart datum ≈ lowest water), applies a spatially-varying chart-datum -> T.P.
 offset ``Z0(x, y) = T.P. − 基本水準面`` from the JMA/JCG tide-station separation
 model (see ``docs/vertical_datum.md``), and writes a T.P.-referenced point dataset
-to ``$DATA_DIR/bathymetry/M7001/TP/``.
+to ``$DATA_DIR/geodata/bathymetry/M7001/TP/``.
 
 Output columns: ``mark, lon, lat, z_tp, depth_cd, z0, unit, geodetic`` where
 ``z_tp`` is the **T.P. elevation (m, positive up; seabed negative)**; ``depth_cd``
@@ -44,13 +44,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--source",
         type=Path,
         default=None,
-        help="M7001 J-BIRD file (default: $DATA_DIR/bathymetry/M7001/ascii/...)",
+        help="M7001 J-BIRD file (default: $DATA_DIR/geodata/bathymetry/M7001/ascii/...)",
     )
     p.add_argument(
         "--out-dir",
         type=Path,
         default=None,
-        help="output directory (default: $DATA_DIR/bathymetry/M7001/TP)",
+        help="output directory (default: $DATA_DIR/geodata/bathymetry/M7001/TP)",
     )
     p.add_argument(
         "--out-name",
@@ -108,7 +108,7 @@ def _build_parser() -> argparse.ArgumentParser:
         const="__default__",
         default=None,
         help="add a z_ell (WGS84 ellipsoidal height) column via a GSI geoid .asc "
-        "(no path -> the bundled $DATA_DIR/geoid default); see scripts/get_gsigeo.py",
+        "(no path -> the bundled $DATA_DIR/geodata/geoid default); see scripts/get_gsigeo.py",
     )
     return p
 

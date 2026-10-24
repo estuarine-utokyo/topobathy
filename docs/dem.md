@@ -50,7 +50,7 @@ dem = grid_dem(lon, lat, z_tp, region=region, spacing=0.002, tension=0.35,
 ```
 
 The OSM land mask needs the `xcoast` package plus the OSM shapefile extracts under
-`$DATA_DIR/OSM/` (`land-polygons-split-4326`, geofabrik water); paths resolve via
+`$DATA_DIR/geodata/OSM/` (`land-polygons-split-4326`, geofabrik water); paths resolve via
 `topobathy.config.osm_land_shp` / `osm_water_shp`. `topobathy-m7001-dem --no-land-mask`
 falls back to the plain distance-coverage mask.
 
@@ -60,7 +60,7 @@ falls back to the plain distance-coverage mask.
 pjsub scripts/genkai_m7001_dem.sh          # Tokyo Bay DEM -> TP/M7001_dem_tokyobay.nc
 # or directly:
 topobathy-m7001-dem --region 139.55 140.30 34.90 35.75 --spacing 0.002 \
-    --out $DATA_DIR/bathymetry/M7001/TP/M7001_dem_tokyobay.nc
+    --out $DATA_DIR/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay.nc
 ```
 
 Output: a CF NetCDF, variable `elevation` = seabed height above **T.P.** (m, +up;
@@ -76,7 +76,7 @@ depth and is excluded (it bounds the land side).
   captures reclaimed land / artificial islands that GSHHG or the M7001 `L` waterline
   may not. `--no-land-mask` reverts to the distance-coverage mask only.
 - **Compositing** multiple sources (M7001 + CUDEM/GEBCO/SRTM15plus/… under
-  `$DATA_DIR/bathymetry`) follows the same GEBCO/NOAA workflow: assemble by data
+  `$DATA_DIR/geodata/bathymetry`) follows the same GEBCO/NOAA workflow: assemble by data
   priority → tension-spline grid → mask/flatten. This is the natural next tool.
 
 ## References

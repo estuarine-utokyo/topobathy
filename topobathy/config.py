@@ -16,6 +16,7 @@ from pathlib import Path
 
 __all__ = [
     "get_data_dir",
+    "get_geodata_dir",
     "get_bathymetry_dir",
     "m7001_source_file",
     "m7001_tp_dir",
@@ -47,15 +48,25 @@ def get_data_dir() -> Path:
     return path
 
 
+# jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
+def get_geodata_dir() -> Path:
+    """``$DATA_DIR/geodata`` — static geospatial base data.
+
+    Holds ``bathymetry/``, ``coastline/``, ``OSM/`` and ``geoid/``. See
+    ``$DATA_DIR/geodata/README.md``.
+    """
+    return get_data_dir() / "geodata"
+
+
 def get_bathymetry_dir() -> Path:
-    """``$DATA_DIR/bathymetry`` — the root of all bathymetry source datasets."""
-    return get_data_dir() / "bathymetry"
+    """``$DATA_DIR/geodata/bathymetry`` — root of all bathymetry datasets."""
+    return get_geodata_dir() / "bathymetry"  # jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
 
 
 def m7001_source_file() -> Path:
     """Path to the JHA M7001 (Southern Kanto, Ver. 2.4) J-BIRD ASCII file.
 
-    The dataset is documented in ``$DATA_DIR/bathymetry/M7001/README.md``.
+    The dataset is documented in ``$DATA_DIR/geodata/bathymetry/M7001/README.md``.
     """
     return get_bathymetry_dir() / "M7001" / "ascii" / "M7001_関東南部_Ver.2.4"
 
@@ -81,13 +92,13 @@ def default_z0_table() -> Path:
 
 
 def geoid_file() -> Path:
-    """Path to the GSI geoid grid under ``$DATA_DIR/geoid/`` (newest GSIGEO2011).
+    """Path to the GSI geoid grid under ``$DATA_DIR/geodata/geoid/`` (newest GSIGEO2011).
 
     Not bundled (large); download once with ``scripts/get_gsigeo.py``. Only needed
     for the ellipsoidal-height branch of :class:`~topobathy.datum.geoid.GeoidModel`;
     the T.P. conversion itself does not use it.
     """
-    geoid_dir = get_data_dir() / "geoid"
+    geoid_dir = get_geodata_dir() / "geoid"  # jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
     candidates = sorted(geoid_dir.glob("gsigeo2011*.asc"), reverse=True)
     if not candidates:
         raise RuntimeError(
@@ -98,17 +109,19 @@ def geoid_file() -> Path:
 
 
 def osm_land_shp() -> Path:
-    """OSM global land-polygons shapefile (``$DATA_DIR/OSM/...``) for the DEM land
-    mask (via ``xcoast``). Download the OSMdata land-polygons-split-4326 extract."""
-    return get_data_dir() / "OSM" / "land-polygons-split-4326" / "land_polygons.shp"
+    """OSM global land-polygons shapefile (``$DATA_DIR/geodata/OSM/...``) for the DEM
+    land mask (via ``xcoast``). Download the OSMdata land-polygons-split-4326 extract."""
+    # jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
+    return get_geodata_dir() / "OSM" / "land-polygons-split-4326" / "land_polygons.shp"
 
 
 def osm_water_shp() -> Path:
     """Geofabrik OSM water-polygons shapefile used by ``xcoast`` to carve inland
     water out of the land mask (rivers/lakes stay 'not land')."""
-    return get_data_dir() / "OSM" / "geofabrik_kanto" / "gis_osm_water_a_free_1.shp"
+    # jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
+    return get_geodata_dir() / "OSM" / "geofabrik_kanto" / "gis_osm_water_a_free_1.shp"
 
 
 def coastmask_cache_dir() -> Path:
     """Cache directory for xcoast coastmask GeoPackages."""
-    return get_data_dir() / "OSM" / "coastmask_cache"
+    return get_geodata_dir() / "OSM" / "coastmask_cache"  # jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)

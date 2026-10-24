@@ -29,7 +29,7 @@ Column layout (1-indexed, from the bundled ``help/データの概要/format.htm`
 ===========  =====  ===============================================================
 
 For M7001 (Southern Kanto, Ver. 2.4) the whole file is unit ``MET`` and datum
-WGS84 (col 60 = 1). See ``$DATA_DIR/bathymetry/M7001/README.md`` for the full spec.
+WGS84 (col 60 = 1). See ``$DATA_DIR/geodata/bathymetry/M7001/README.md`` for the full spec.
 
 The reader returns a canonical :class:`pandas.DataFrame` with columns
 ``mark, lon, lat, depth_cd, unit, geodetic`` (``depth_cd`` = the raw vertical

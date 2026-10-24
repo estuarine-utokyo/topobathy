@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Download the GSI geoid model「日本のジオイド2011」into ``$DATA_DIR/geoid/``.
+"""Download the GSI geoid model「日本のジオイド2011」into ``$DATA_DIR/geodata/geoid/``.
 
 Fetches the GSIGEO2011 ASCII grid (used by the ellipsoidal-height branch of
 :class:`topobathy.datum.geoid.GeoidModel`) directly from GSI — **no login** — and
-unzips the ``gsigeo2011_ver2_2.asc`` grid to ``$DATA_DIR/geoid/``. The T.P.
+unzips the ``gsigeo2011_ver2_2.asc`` grid to ``$DATA_DIR/geodata/geoid/``. The T.P.
 conversion of M7001 does not need this; it is only for producing/consuming
 **ellipsoidal** heights (GNSS / ERS).
 
@@ -41,7 +41,7 @@ def main() -> int:
     data_dir = os.environ.get("DATA_DIR")
     if not data_dir:
         sys.exit("ERROR: DATA_DIR unset")
-    out_dir = Path(data_dir) / "geoid"
+    out_dir = Path(data_dir) / "geodata" / "geoid"  # jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
     out_dir.mkdir(parents=True, exist_ok=True)
     dest = out_dir / ASC_NAME
     if dest.is_file():

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Grid the M7001 T.P. soundings into a bathymetric DEM (GMT splines in tension,
 # the GEBCO/NOAA-standard method) over the Tokyo Bay window -> a CF NetCDF in
-# $DATA_DIR/bathymetry/M7001/TP/. See docs/dem.md.
+# $DATA_DIR/geodata/bathymetry/M7001/TP/. See docs/dem.md.
 #
 #   pjsub scripts/genkai_m7001_dem.sh
 #
@@ -23,7 +23,8 @@ export GDAL_DATA="${HOME}/mambaforge/envs/topobathy/share/gdal"
 
 PY="${HOME}/mambaforge/envs/topobathy/bin/python"
 cd "${HOME}/Github/topobathy"
-TP="${DATA_DIR}/bathymetry/M7001/TP"
+# jsasaki 2026-10-24: data moved under $DATA_DIR/geodata (2026-07-09 reorganisation)
+TP="${DATA_DIR}/geodata/bathymetry/M7001/TP"
 
 # Tokyo Bay DEM: ~0.002° (~180 m) grid, tension 0.35, 2 km coverage mask.
 "${PY}" -m topobathy.cli.m7001_dem \
