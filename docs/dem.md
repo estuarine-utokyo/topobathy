@@ -193,6 +193,9 @@ Single maps at full size: [`figures/futtsu_merge_before.png`](figures/futtsu_mer
 (the file names keep `chiba_channel` from before the Futtsu merge; the content is the
 default DEM). The inner-bay and Boso close-up maps do not reach Futtsu and were not redrawn.
 
+A 10 m / 5 m DEM on the same window from the original data: feasibility and plan in
+[`dem_hires_plan.md`](dem_hires_plan.md).
+
 ## Notes & refinements
 
 - **Tension** trades smoothness vs. faithfulness; raise it (→0.4–0.5) if the spline
