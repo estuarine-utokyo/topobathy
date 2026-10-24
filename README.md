@@ -140,6 +140,19 @@ pjsub scripts/genkai_m7001_dem.sh     # Tokyo Bay DEM -> TP/M7001_dem_tokyobay.n
 
 ![M7001 DEM](docs/figures/m7001_dem_tp.png)
 
+## Tool: seabed mound detection
+
+Finds seabed mounds on a depth grid by **topographic prominence** (rise above the highest
+col to higher terrain or the shore), with filters on summit depth, distance from shore,
+width and mean flank slope at half height, exclusion boxes and nearby charted rock — e.g.
+candidates for sandy mound tops in a muddy seabed. See **[`docs/mounds.md`](docs/mounds.md)**.
+
+```bash
+pjsub scripts/genkai_plot_tokyobay_mounds.sh   # whole bay -> docs/figures/tokyobay_mounds.csv + map
+```
+
+![Seabed mounds in Tokyo Bay](docs/figures/mounds/tokyobay_mounds_medium.png)
+
 ## Development
 
 ```bash
