@@ -84,6 +84,11 @@ def main() -> int:
     ap.add_argument("--mound-shore-dist", type=float, default=2000.0,
                     help="maximum distance of the summit from land (m)")
     ap.add_argument("--mound-csv", type=Path, default=None, help="write the mounds found here")
+    # jsasaki 2026-10-24: owner: steep mounds only (sandy tops in a muddy seabed)
+    ap.add_argument("--mound-min-slope", type=float, default=0.0,
+                    help="minimum mean flank slope = prominence / (base width / 2) (m/m)")
+    ap.add_argument("--mound-width", type=float, nargs=2, default=None, metavar=("MIN", "MAX"),
+                    help="base width range (m, equivalent-circle diameter)")
     #<--- jsasaki 2026-10-24
     ap.add_argument("--vmax-pct", type=float, default=None,
                     help="set --vmax to this percentile of the water depth in the frame (ceil, m)")
@@ -151,24 +156,31 @@ def main() -> int:
         found = find_mounds(-big.values, big.lon.values, big.lat.values,
                             zmin=args.mound_depth[0], zmax=args.mound_depth[1],
                             min_prominence=args.mound_prominence,
-                            max_shore_dist=args.mound_shore_dist)
+                            max_shore_dist=args.mound_shore_dist,
+                            # jsasaki 2026-10-24: slope and width filters
+                            min_slope=args.mound_min_slope,
+                            width_range=tuple(args.mound_width) if args.mound_width else None)
         found = [m for m in found if w <= m["lon"] <= e and s <= m["lat"] <= n]
         print(f"mounds: {len(found)} (summit {args.mound_depth[0]:g}-{args.mound_depth[1]:g} m, "
-              f"prominence >= {args.mound_prominence:g} m, <= {args.mound_shore_dist:g} m from land)")
+              f"prominence >= {args.mound_prominence:g} m, <= {args.mound_shore_dist:g} m from land, "
+              # jsasaki 2026-10-24: report slope / width filters and values
+              f"slope >= {args.mound_min_slope:g}, width {args.mound_width})")
         for m in found:
             print(f"  {m['lon']:.5f} E {m['lat']:.5f} N  depth {m['depth']:.2f} m  "
-                  f"prominence {m['prominence']:.2f} m  shore {m['shore_dist']:.0f} m")
+                  f"prominence {m['prominence']:.2f} m  width {m['width']:.0f} m  "
+                  f"slope {m['slope']:.4f} (1:{1 / m['slope']:.0f})  shore {m['shore_dist']:.0f} m")
         if found:
             ax.scatter([m["lon"] for m in found], [m["lat"] for m in found], s=110,
                        facecolors="none", edgecolors="#d62728", linewidths=1.8, zorder=12)
         if args.mound_csv:
             args.mound_csv.parent.mkdir(parents=True, exist_ok=True)
             with open(args.mound_csv, "w", newline="") as f:
+                # jsasaki 2026-10-24: + width, slope
                 wr = csv.DictWriter(f, fieldnames=["lon", "lat", "depth", "prominence",
-                                                   "shore_dist"])
+                                                   "width", "slope", "shore_dist"])
                 wr.writeheader()
                 for m in found:
-                    wr.writerow({k: round(v, 5 if k in ("lon", "lat") else 2)
+                    wr.writerow({k: round(v, 5 if k in ("lon", "lat", "slope") else 2)
                                  for k, v in m.items()})
     #<--- jsasaki 2026-10-24
     #---> jsasaki 2026-10-24: --box rectangles above the land layer

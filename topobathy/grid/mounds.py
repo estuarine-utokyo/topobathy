@@ -11,7 +11,15 @@ Mounds are kept when
 
 * the summit depth is in [zmin, zmax],
 * the prominence is at least ``min_prominence``,
-* the summit lies within ``max_shore_dist`` (m) of land.
+* the summit lies within ``max_shore_dist`` (m) of land,
+* (optional) the width at half height and the flank slope are in range.
+
+Size and steepness are measured on the upper half of the mound: the cells connected to
+the summit that lie above summit - prominence / 2. Their area gives the equivalent-circle
+diameter ``width`` (full width at half height), and the mean flank slope over that upper
+half is ``slope = (prominence / 2) / (width / 2)``. (The base above the col is not used:
+on a flat surrounding seabed it spreads over the whole flat.) A minimum slope rejects
+broad, gentle swells, keeping mounds that stand out from the surrounding seabed.
 
 Typical use (depth +down, NaN = land / no data)::
 
@@ -87,13 +95,17 @@ def _prominence(elev: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 
 def find_mounds(depth: np.ndarray, lon: np.ndarray, lat: np.ndarray, *, zmin: float,
-                zmax: float, min_prominence: float, max_shore_dist: float) -> list[dict]:
+                zmax: float, min_prominence: float, max_shore_dist: float,
+                min_slope: float = 0.0, width_range: tuple[float, float] | None = None
+                ) -> list[dict]:
     """Mounds on ``depth`` (2-D, lat x lon, m +down; NaN or <= 0 = land / no data).
 
-    Returns a list of dicts (lon, lat, depth, prominence, shore_dist), deepest-prominence
-    first. ``max_shore_dist`` in metres.
+    Returns a list of dicts (lon, lat, depth, prominence, width, slope, shore_dist),
+    highest prominence first. ``max_shore_dist`` and ``width_range`` (full width at half
+    height) in metres; ``min_slope`` = minimum mean flank slope of the upper half (m/m).
     """
-    from scipy.ndimage import distance_transform_edt
+    # jsasaki 2026-10-24: owner: width / slope filters (sandy mound tops in mud)
+    from scipy.ndimage import distance_transform_edt, label
 
     depth = np.asarray(depth, dtype=float)
     land = ~np.isfinite(depth) | (depth <= 0.0)
@@ -108,8 +120,21 @@ def find_mounds(depth: np.ndarray, lon: np.ndarray, lat: np.ndarray, *, zmin: fl
         if land[y, x] or not np.isfinite(p):
             continue
         z = depth[y, x]
-        if zmin <= z <= zmax and p >= min_prominence and shore[y, x] <= max_shore_dist:
-            out.append({"lon": float(lon[x]), "lat": float(lat[y]), "depth": float(z),
-                        "prominence": float(p), "shore_dist": float(shore[y, x])})
+        #---> jsasaki 2026-10-24: width at half height and upper-half flank slope
+        if not (zmin <= z <= zmax and p >= min_prominence and shore[y, x] <= max_shore_dist):
+            continue
+        upper, _ = label(~land & (elev >= elev[y, x] - p / 2.0),
+                         structure=np.ones((3, 3), dtype=bool))
+        ncell = int((upper == upper[y, x]).sum())
+        width = 2.0 * np.sqrt(ncell * dx * dy / np.pi)
+        slope = (p / 2.0) / (width / 2.0)
+        if slope < min_slope:
+            continue
+        if width_range is not None and not (width_range[0] <= width <= width_range[1]):
+            continue
+        out.append({"lon": float(lon[x]), "lat": float(lat[y]), "depth": float(z),
+                    "prominence": float(p), "width": float(width), "slope": float(slope),
+                    "shore_dist": float(shore[y, x])})
+        #<--- jsasaki 2026-10-24
     out.sort(key=lambda d: -d["prominence"])
     return out
