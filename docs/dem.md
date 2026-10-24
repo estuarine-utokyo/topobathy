@@ -70,14 +70,25 @@ depth and is excluded (it bounds the land side).
 
 ## The 50 m Tokyo Bay DEMs and what goes into them
 
-Two 0.0005° (≈ 45 × 55 m) T.P. DEMs of Tokyo Bay sit in
-`$DATA_DIR/geodata/bathymetry/M7001/TP/`. **Only the second combines more than one
-bathymetry source**, and only along the Chiba channel.
+Three 0.0005° (≈ 45 × 55 m) T.P. DEMs of Tokyo Bay sit in
+`$DATA_DIR/geodata/bathymetry/M7001/TP/`, each the input of the next. **The default name
+`M7001_dem_tokyobay_50m.nc` is the final one** (since 2026-10-24): M7001, with the Chiba
+channel corrected from the Endo (2020) 50 m grid and the Fisheries Agency 2022 Futtsu
+survey merged. The M7001-only grid that carried the default name until then is now
+`M7001_dem_tokyobay_50m_m7001_only.nc`. A README beside the files
+(`M7001_dem_tokyobay_50m.README.md`) says the same for users of the data archive.
+
+```
+M7001_TP.parquet ──topobathy-m7001-dem──▶ M7001_dem_tokyobay_50m_m7001_only.nc
+  ──scripts/genkai_m7001_chiba_channel.sh (Endo 50 m)──▶ M7001_dem_tokyobay_50m_chiba_channel.nc
+  ──scripts/genkai_futtsu_jfa_merge.sh (Futtsu 0.5 m)──▶ M7001_dem_tokyobay_50m.nc
+```
 
 | file | depth data used | other data used | built by |
 |---|---|---|---|
-| `M7001_dem_tokyobay_50m.nc` (139.50–140.35 E, 34.85–35.80 N; 2026-08-09) | **M7001 only** — the JHA digitised chart soundings (`N` contours, `M` low-tide line), converted chart datum → T.P. with the JCG/JMA tide-station datum model ([`vertical_datum.md`](vertical_datum.md)) | OSM land polygons via `xcoast` (hydro-flattening: land = NaN, step 4 above); no other bathymetry | `topobathy-m7001-dem --spacing 0.0005 --tension 0.35 --mask-km 2.0` over that window. The run was not kept as a job script; it is the same method and parameters as `scripts/genkai_m7001_dem_50m.sh` (Kanto-South window, `M7001_dem_kanto_south_50m.nc`), and where both have data the median difference is < 1e-5 m; single cells differ by up to 32 m, presumably where the splines of the two windows diverge (not examined) |
+| `M7001_dem_tokyobay_50m_m7001_only.nc` (139.50–140.35 E, 34.85–35.80 N; 2026-08-09; named `M7001_dem_tokyobay_50m.nc` until 2026-10-24) | **M7001 only** — the JHA digitised chart soundings (`N` contours, `M` low-tide line), converted chart datum → T.P. with the JCG/JMA tide-station datum model ([`vertical_datum.md`](vertical_datum.md)) | OSM land polygons via `xcoast` (hydro-flattening: land = NaN, step 4 above); no other bathymetry | `topobathy-m7001-dem --spacing 0.0005 --tension 0.35 --mask-km 2.0` over that window. The run was not kept as a job script; it is the same method and parameters as `scripts/genkai_m7001_dem_50m.sh` (Kanto-South window, `M7001_dem_kanto_south_50m.nc`), and where both have data the median difference is < 1e-5 m; single cells differ by up to 32 m, presumably where the splines of the two windows diverge (not examined) |
 | `M7001_dem_tokyobay_50m_chiba_channel.nc` (same grid; 2026-10-23) | the grid above, **plus the Endo (2020) 50 m grid** for the Chiba channel only | — | `scripts/m7001_chiba_channel.py` (`scripts/genkai_m7001_chiba_channel.sh`); the method is also written into the file's global attributes (`chiba_channel_correction*`) |
+| **`M7001_dem_tokyobay_50m.nc`** (same grid; 2026-10-24; **default**) | the grid above, **plus the Fisheries Agency 2022 Futtsu survey** (0.5 m) inside its footprint | — | `scripts/futtsu_jfa_merge.py` (`scripts/genkai_futtsu_jfa_merge.sh`); method in the global attributes (`futtsu_merge*`) |
 
 ### The Endo (2020) 50 m grid
 
@@ -137,13 +148,43 @@ Cabinet Office 2025 tsunami topography (10/30/90 m; median +0.18 m vs M7001 on 1
 depths), the older Cabinet Office 30 m grid (`tokyo_bay/depth_0030-*`), JCG 500 m mesh
 (median −1.68 m, chart datum) and SRTM15+ (−1.69 m).
 
-**`Futtsu_JFA_2023` is not in either DEM.** The Fisheries Agency 2022 survey off Futtsu
-(`$DATA_DIR/geodata/bathymetry/Futtsu_JFA_2023/`, 0.5 m grid, T.P., EPSG:6677, 43 tiles,
-15 GB; precedence #1 in `fvcom-mesh-tools/docs/DATA_INVENTORY.md`) is used by the mesh
-tools, but the M7001 50 m DEMs above contain M7001 (and the Endo channel) only. Merging it
-would follow the compositing workflow below: block-median the 0.5 m grid to 50 m inside
-its footprint, check its datum against M7001 on overlapping flat seabed, and replace M7001
-there with a ramp at the footprint edge.
+### The Futtsu merge (Fisheries Agency 2022 survey)
+
+`$DATA_DIR/geodata/bathymetry/Futtsu_JFA_2023/` (README there) is the Fisheries Agency's
+2022 survey of the Futtsu flats: a 0.5 m grid in 43 tiles of 400 m × 300 m
+(`05MCSV_TP/*.txt`, columns `id, easting, northing, elevation, flag`, JGD2011 zone IX =
+EPSG:6677, elevation above T.P.; 13.4 M nodes; `MESH_TP/` is a byte-identical copy, the
+raw point cloud `ORIGINAL_TP/` is not used). `scripts/futtsu_jfa_merge.py` merges it into
+`M7001_dem_tokyobay_50m_chiba_channel.nc`:
+
+1. **block median** — each node is transformed to lon/lat and assigned to the 0.0005° cell
+   that contains it; the cell takes the median of its nodes, and is used only if the nodes
+   cover ≥ 50 % of it (nodes × 0.25 m² / cell area), so half-empty edge cells do not carry
+   a corner value. 1331 cells pass (of 1448 touched): 139.782–139.819 E,
+   35.3135–35.330 N, elevation −4.0 to +1.4 m T.P.
+2. **datum check** — both are T.P., so **no shift** is applied. On flat seabed (1–20 m,
+   slope < 0.002 in both) the survey is lower than the base by a median 0.61 m (IQR −1.02
+   to −0.03 m), but only 93 cells qualify, and over all 1299 overlapping water cells the
+   median is −0.49 m: the difference is mainly the tidal channels of the flats, which the
+   survey resolves and the M7001 spline fills in (see the difference map), not a datum
+   offset. The 2022 0.5 m survey is taken as the better description of the flats.
+3. **merge** — inside the footprint the DEM takes the survey value, with a linear ramp over
+   the first **250 m** inside the footprint edge (base at the edge, survey at full
+   weight), so no step is left; only water cells of the base are changed, so its OSM land
+   mask is kept. 1299 cells (3.28 km²) changed, 599 at full weight; change median
+   −0.28 m (5–95 % −1.36 to +0.56 m).
+
+The job writes a staging file first (`M7001_dem_tokyobay_50m_futtsu_staging.nc`); after the
+checks above it was renamed to the default name and the M7001-only grid to
+`M7001_dem_tokyobay_50m_m7001_only.nc`. To rebuild: `pjsub scripts/genkai_futtsu_jfa_merge.sh`,
+check, then rename the same way.
+
+Before / after ([`figures/futtsu_merge_before.png`](figures/futtsu_merge_before.png),
+[`figures/futtsu_merge_after.png`](figures/futtsu_merge_after.png); red box = survey
+footprint) and the difference
+([`figures/futtsu_merge_diff.png`](figures/futtsu_merge_diff.png)):
+
+![Futtsu after the merge](figures/futtsu_merge_after.png)
 
 ## Notes & refinements
 

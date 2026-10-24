@@ -17,7 +17,8 @@ export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 ENV="${WORK_DIR}/mambaforge/envs/topobathy"
 export PROJ_DATA="${ENV}/share/proj" GDAL_DATA="${ENV}/share/gdal"
 cd "${WORK_DIR}/Github/topobathy"
+# jsasaki 2026-10-24: the M7001-only DEM was renamed when Futtsu took the default name
 "${ENV}/bin/python" scripts/plot_depth_map.py \
-    --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m.nc" \
+    --dem "${DATA_DIR}/geodata/bathymetry/M7001/TP/M7001_dem_tokyobay_50m_m7001_only.nc" \
     --region 139.60 140.15 35.36 35.72 --vmax 30 --cmap deep \
     --out docs/figures/tokyobay_inner_depth_tp.png

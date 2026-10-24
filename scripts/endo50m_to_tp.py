@@ -57,7 +57,8 @@ def main() -> int:
 
     ds = xr.open_dataset(args.src)
     d_endo = -ds["elevation"].astype("float64")
-    m7 = config.get_bathymetry_dir() / "M7001" / "TP" / "M7001_dem_tokyobay_50m.nc"
+    # jsasaki 2026-10-24: the M7001-only DEM was renamed when Futtsu took the default name
+    m7 = config.get_bathymetry_dir() / "M7001" / "TP" / "M7001_dem_tokyobay_50m_m7001_only.nc"
     d_m7 = -xr.open_dataset(m7)["elevation"].astype("float64").interp(
         lon=d_endo.lon, lat=d_endo.lat, method="linear")
 

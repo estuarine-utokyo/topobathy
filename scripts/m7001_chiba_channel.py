@@ -109,7 +109,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     b = config.get_bathymetry_dir()
-    ap.add_argument("--m7001", type=Path, default=b / "M7001" / "TP" / "M7001_dem_tokyobay_50m.nc")
+    # jsasaki 2026-10-24: the M7001-only DEM was renamed when Futtsu took the default name
+    ap.add_argument("--m7001", type=Path, default=b / "M7001" / "TP" / "M7001_dem_tokyobay_50m_m7001_only.nc")
     ap.add_argument("--endo", type=Path,
                     default=b / "tokyobay_endo" / "nc" / "endo_50m_lonlat_tp.nc")
     #---> jsasaki 2026-10-23: harmonic refill of the flats + channel cut (replaces the taper)

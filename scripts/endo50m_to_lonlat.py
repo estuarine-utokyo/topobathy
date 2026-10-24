@@ -81,7 +81,8 @@ def main() -> int:
     print(f"wrote {args.out}: {len(df)} points; lon {lon_c.min():.4f}-{lon_c.max():.4f}, "
           f"lat {lat_c.min():.4f}-{lat_c.max():.4f}; depth {np.nanmin(z):.1f} to {np.nanmax(z):.1f} m")
 
-    m7 = config.get_bathymetry_dir() / "M7001" / "TP" / "M7001_dem_tokyobay_50m.nc"
+    # jsasaki 2026-10-24: the M7001-only DEM was renamed when Futtsu took the default name
+    m7 = config.get_bathymetry_dir() / "M7001" / "TP" / "M7001_dem_tokyobay_50m_m7001_only.nc"
     ref = -xr.open_dataset(m7)["elevation"].interp(
         lon=xr.DataArray(lon_c, dims="p"), lat=xr.DataArray(lat_c, dims="p"),
         method="nearest").to_numpy()

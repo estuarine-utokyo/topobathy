@@ -30,7 +30,8 @@ FRAME = "Inner Tokyo Bay (north of Kisarazu)"
 
 
 def m7001_depth() -> xr.DataArray:
-    f = config.get_bathymetry_dir() / "M7001" / "TP" / "M7001_dem_tokyobay_50m.nc"
+    # jsasaki 2026-10-24: the M7001-only DEM was renamed when Futtsu took the default name
+    f = config.get_bathymetry_dir() / "M7001" / "TP" / "M7001_dem_tokyobay_50m_m7001_only.nc"
     w, e, s, n = REGION
     return -xr.open_dataset(f)["elevation"].sel(lon=slice(w, e), lat=slice(s, n))
 
