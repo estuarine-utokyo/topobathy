@@ -133,6 +133,9 @@ Grid the T.P. soundings into a smooth DEM by the community-standard method — G
 (which leaves facets and terraces contour data) — then **hydro-flatten** to the
 **OSM coastline** (via [`xcoast`](https://github.com/estuarine-utokyo/xcoast); clips
 land, incl. reclaimed land/islands). See **[`docs/dem.md`](docs/dem.md)**.
+The 50 m Tokyo Bay DEMs, which sources each contains (M7001 only; M7001 + the Endo 50 m
+grid for the Chiba channel) and what is **not** merged (e.g. the Futtsu 0.5 m survey):
+[`docs/dem.md` — the 50 m Tokyo Bay DEMs](docs/dem.md#the-50-m-tokyo-bay-dems-and-what-goes-into-them).
 
 ```bash
 pjsub scripts/genkai_m7001_dem.sh     # Tokyo Bay DEM -> TP/M7001_dem_tokyobay.nc

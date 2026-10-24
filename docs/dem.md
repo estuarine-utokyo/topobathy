@@ -68,6 +68,83 @@ seabed negative), NaN outside the coverage mask. Grids the `N` (depth-contour) a
 `M` (low-tide-line) marks, which carry a T.P. elevation; `L` (HHW coastline) has no
 depth and is excluded (it bounds the land side).
 
+## The 50 m Tokyo Bay DEMs and what goes into them
+
+Two 0.0005° (≈ 45 × 55 m) T.P. DEMs of Tokyo Bay sit in
+`$DATA_DIR/geodata/bathymetry/M7001/TP/`. **Only the second combines more than one
+bathymetry source**, and only along the Chiba channel.
+
+| file | depth data used | other data used | built by |
+|---|---|---|---|
+| `M7001_dem_tokyobay_50m.nc` (139.50–140.35 E, 34.85–35.80 N; 2026-08-09) | **M7001 only** — the JHA digitised chart soundings (`N` contours, `M` low-tide line), converted chart datum → T.P. with the JCG/JMA tide-station datum model ([`vertical_datum.md`](vertical_datum.md)) | OSM land polygons via `xcoast` (hydro-flattening: land = NaN, step 4 above); no other bathymetry | `topobathy-m7001-dem --spacing 0.0005 --tension 0.35 --mask-km 2.0` over that window. The run was not kept as a job script; it is the same method and parameters as `scripts/genkai_m7001_dem_50m.sh` (Kanto-South window, `M7001_dem_kanto_south_50m.nc`), and where both have data the median difference is < 1e-5 m; single cells differ by up to 32 m, presumably where the splines of the two windows diverge (not examined) |
+| `M7001_dem_tokyobay_50m_chiba_channel.nc` (same grid; 2026-10-23) | the grid above, **plus the Endo (2020) 50 m grid** for the Chiba channel only | — | `scripts/m7001_chiba_channel.py` (`scripts/genkai_m7001_chiba_channel.sh`); the method is also written into the file's global attributes (`chiba_channel_correction*`) |
+
+### The Endo (2020) 50 m grid
+
+`$DATA_DIR/geodata/bathymetry/tokyobay_endo/` holds a 50 m Tokyo Bay grid edited by
+M. Endo in 2020 (see `東京湾地形データの編集手順.docx` there): an earlier 50 m point set of
+the inner bay down to Kisarazu, with the separately surveyed dredged pits, shifted to the
+GSI coastline, merged with the Sanbanze survey of FY2011 (Chiba Prefecture), and
+IDW-interpolated to 50 m cells in JGD2011 zone IX. It resolves dredged channels that
+M7001 does not. Two steps make it usable here:
+
+1. `scripts/endo50m_to_lonlat.py` — the water cells (`Raster_data/50m_JGD_point_water`,
+   `grid_code` = elevation, +up) → lon/lat NetCDF on the M7001 lattice
+   (`tokyobay_endo/nc/endo_50m_lonlat.nc`), nearest cell.
+2. `scripts/endo50m_to_tp.py` — the datum is not stated in the document; on **flat
+   seabed** (3–25 m deep, slope < 0.002, |difference| < 3 m, so dredged pits, channels
+   and harbours are left out) Endo is shallower than M7001 by a median **0.982 m**
+   (IQR −1.14 to −0.86 m, n = 86 764), consistent with A.P. (T.P. − 1.134 m), the datum
+   expected of an MLIT product. Taking M7001 as correct (owner), the grid is shifted by
+   the measured 0.982 m rather than the nominal A.P. value
+   (`tokyobay_endo/nc/endo_50m_lonlat_tp.nc`; the shift is in its attributes).
+   Residual by sub-area: NW −0.20, NE −0.01, SW −0.04, SE +0.12 m.
+
+The Endo grid is **not** used anywhere else in the DEM: its dredged pits are being
+back-filled and its harbours and channels have been dredged since, so outside the Chiba
+channel M7001 is kept.
+
+### The Chiba channel correction
+
+M7001 smears the dredged Chiba channel into a chain of bumps and leaves it 13–17 m deep
+in places where the Endo grid shows a flat floor at about 19 m below T.P. The correction
+(`scripts/m7001_chiba_channel.py`) does two things inside a corridor of 900 m either side
+of the channel axis, with the corridor ends cut square to the axis so Chiba port itself
+is untouched:
+
+1. **flat seabed** — M7001 inside the corridor is discarded and refilled by harmonic
+   (Laplace) interpolation from the M7001 values just outside it (land no-flux), which
+   removes the channel soundings smeared into the flats and gives smooth contours;
+2. **channel** — a straight dredged channel is cut along the axis with the cross-section
+   measured from the Endo grid: flat floor at **18.98 m below T.P.** (Endo median within
+   100 m of the axis; ≈ the 18 m design depth on Endo's own datum) to **175 m** from the
+   axis, then a side slope of **0.04** (1:25, the slope the 50 m Endo grid shows) up to
+   the refilled surface; depth = max(refilled, channel profile).
+
+The axis is the centreline of the Endo channel floor (cells deeper than 18.7 m): a
+straight leg `lat = 0.51672 lon − 36.78583` (139.975–140.06 E, rms 32 m), extended
+south-west to 139.94 E where the natural depth reaches the floor, then the bend to the
+port mouth at 140.085 E. Endo cells deeper than 20 m (borrow pits) are not used. Outside
+the corridor the grid is M7001 unchanged. Result: corridor 27.2 km², of which channel
+7.5 km²; flat-seabed change median −0.05 m; channel deepened by a median 0.94 m (max
+9.2 m). Maps: [`figures/chiba_channel_m7001_original.png`](figures/chiba_channel_m7001_original.png),
+[`figures/chiba_channel_m7001_corrected.png`](figures/chiba_channel_m7001_corrected.png).
+
+### Data sets compared but NOT merged
+
+These were only plotted against M7001 (inner-bay maps in `docs/figures/`), not merged:
+Cabinet Office 2025 tsunami topography (10/30/90 m; median +0.18 m vs M7001 on 10–30 m
+depths), the older Cabinet Office 30 m grid (`tokyo_bay/depth_0030-*`), JCG 500 m mesh
+(median −1.68 m, chart datum) and SRTM15+ (−1.69 m).
+
+**`Futtsu_JFA_2023` is not in either DEM.** The Fisheries Agency 2022 survey off Futtsu
+(`$DATA_DIR/geodata/bathymetry/Futtsu_JFA_2023/`, 0.5 m grid, T.P., EPSG:6677, 43 tiles,
+15 GB; precedence #1 in `fvcom-mesh-tools/docs/DATA_INVENTORY.md`) is used by the mesh
+tools, but the M7001 50 m DEMs above contain M7001 (and the Endo channel) only. Merging it
+would follow the compositing workflow below: block-median the 0.5 m grid to 50 m inside
+its footprint, check its datum against M7001 on overlapping flat seabed, and replace M7001
+there with a ramp at the footprint edge.
+
 ## Notes & refinements
 
 - **Tension** trades smoothness vs. faithfulness; raise it (→0.4–0.5) if the spline
