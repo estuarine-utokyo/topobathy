@@ -1,0 +1,115 @@
+"""Find seabed mounds on a lon/lat depth grid by topographic prominence.
+
+A mound is a local summit of the seabed (a local minimum of depth). Its height above
+the surrounding seabed is the topographic *prominence*: the summit elevation minus the
+highest saddle (col) through which it connects to higher terrain (another, higher
+summit or the shore). This is computed exactly with one union-find sweep over the cells
+sorted from shallow to deep; land and no-data cells are treated as the highest terrain,
+so a mound on a slope rising to the shore is measured against the col towards the shore.
+
+Mounds are kept when
+
+* the summit depth is in [zmin, zmax],
+* the prominence is at least ``min_prominence``,
+* the summit lies within ``max_shore_dist`` (m) of land.
+
+Typical use (depth +down, NaN = land / no data)::
+
+    from topobathy.grid.mounds import find_mounds
+    tab = find_mounds(depth, lon, lat, zmin=7, zmax=14, min_prominence=1, max_shore_dist=2000)
+"""
+
+from __future__ import annotations
+
+import numpy as np
+
+__all__ = ["find_mounds"]
+
+_LAND = 1.0e6  # elevation given to land / no-data cells (higher than any seabed)
+
+
+def _cell_size_m(lon: np.ndarray, lat: np.ndarray) -> tuple[float, float]:
+    lat0 = np.radians(float(np.mean(lat)))
+    dx = float(np.mean(np.abs(np.diff(lon)))) * 111_320.0 * np.cos(lat0)
+    dy = float(np.mean(np.abs(np.diff(lat)))) * 111_320.0
+    return dx, dy
+
+
+def _prominence(elev: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Return (peak_index, prominence) for every local summit of ``elev`` (2-D, finite).
+
+    Union-find over cells in descending elevation, 8-connected. When two components
+    meet at a cell, the component with the lower summit ends there: its prominence is
+    summit - cell elevation. The highest summit gets prominence = inf.
+    """
+    ny, nx = elev.shape
+    flat = elev.ravel()
+    order = np.argsort(-flat, kind="stable")
+    parent = -np.ones(flat.size, dtype=np.int64)  # -1 = not yet processed
+    peak = np.zeros(flat.size, dtype=np.int64)    # root -> summit cell
+
+    def find(i: int) -> int:
+        root = i
+        while parent[root] != root:
+            root = parent[root]
+        while parent[i] != root:  # path compression
+            parent[i], i = root, parent[i]
+        return root
+
+    peaks, proms = [], []
+    nbrs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    for c in order:
+        cy, cx = divmod(int(c), nx)
+        roots = set()
+        for oy, ox in nbrs:
+            y, x = cy + oy, cx + ox
+            if 0 <= y < ny and 0 <= x < nx:
+                j = y * nx + x
+                if parent[j] >= 0:
+                    roots.add(find(j))
+        parent[c] = c
+        if not roots:  # new summit
+            peak[c] = c
+            continue
+        roots = sorted(roots, key=lambda r: flat[peak[r]], reverse=True)
+        top = roots[0]
+        for r in roots[1:]:  # lower summits end at this col
+            peaks.append(peak[r])
+            proms.append(flat[peak[r]] - flat[c])
+            parent[r] = top
+        parent[c] = top
+    # remaining roots: highest summits (prominence = inf)
+    for c in range(flat.size):
+        if parent[c] == c:
+            peaks.append(peak[c])
+            proms.append(np.inf)
+    return np.asarray(peaks), np.asarray(proms)
+
+
+def find_mounds(depth: np.ndarray, lon: np.ndarray, lat: np.ndarray, *, zmin: float,
+                zmax: float, min_prominence: float, max_shore_dist: float) -> list[dict]:
+    """Mounds on ``depth`` (2-D, lat x lon, m +down; NaN or <= 0 = land / no data).
+
+    Returns a list of dicts (lon, lat, depth, prominence, shore_dist), deepest-prominence
+    first. ``max_shore_dist`` in metres.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    depth = np.asarray(depth, dtype=float)
+    land = ~np.isfinite(depth) | (depth <= 0.0)
+    elev = np.where(land, _LAND, -depth)
+    dx, dy = _cell_size_m(lon, lat)
+    shore = distance_transform_edt(~land, sampling=(dy, dx))
+
+    pk, pr = _prominence(elev)
+    iy, ix = np.unravel_index(pk, depth.shape)
+    out = []
+    for y, x, p in zip(iy, ix, pr):
+        if land[y, x] or not np.isfinite(p):
+            continue
+        z = depth[y, x]
+        if zmin <= z <= zmax and p >= min_prominence and shore[y, x] <= max_shore_dist:
+            out.append({"lon": float(lon[x]), "lat": float(lat[y]), "depth": float(z),
+                        "prominence": float(p), "shore_dist": float(shore[y, x])})
+    out.sort(key=lambda d: -d["prominence"])
+    return out

@@ -75,6 +75,16 @@ def main() -> int:
     # jsasaki 2026-10-24: owner: scale bar in the lower-right corner
     ap.add_argument("--scalebar", type=float, default=None, metavar="KM",
                     help="draw a scale bar of this length (km) in the lower-right corner")
+    #---> jsasaki 2026-10-24: owner: mark seabed mounds (topobathy.grid.mounds)
+    ap.add_argument("--mounds", action="store_true", help="find and mark seabed mounds")
+    ap.add_argument("--mound-depth", type=float, nargs=2, default=(7.0, 14.0),
+                    metavar=("ZMIN", "ZMAX"), help="summit depth range (m)")
+    ap.add_argument("--mound-prominence", type=float, default=1.0,
+                    help="minimum rise above the surrounding seabed (m, topographic prominence)")
+    ap.add_argument("--mound-shore-dist", type=float, default=2000.0,
+                    help="maximum distance of the summit from land (m)")
+    ap.add_argument("--mound-csv", type=Path, default=None, help="write the mounds found here")
+    #<--- jsasaki 2026-10-24
     ap.add_argument("--vmax-pct", type=float, default=None,
                     help="set --vmax to this percentile of the water depth in the frame (ceil, m)")
     ap.add_argument("--no-note", action="store_true", help="no source line under the map")
@@ -127,6 +137,40 @@ def main() -> int:
             ax.clabel(cs, fmt="%g", fontsize=7, inline_spacing=2)
     land_gdf(args.region).add_to_plain_mpl(ax, facecolor="#d9d6cf", edgecolor="#4a4a4a",
                                            linewidth=0.5, zorder=5)
+    #---> jsasaki 2026-10-24: --mounds on the raw grid, padded so shore distance and
+    # prominence are not cut by the frame; only summits inside the frame are drawn
+    if args.mounds:
+        import csv
+        from topobathy.grid.mounds import find_mounds
+        pad_m = args.mound_shore_dist + 1000.0
+        plat = pad_m / 111_320.0
+        plon = pad_m / (111_320.0 * np.cos(np.radians((s + n) / 2)))
+        big = xr.open_dataset(args.dem)[args.var].sortby("lat").sortby("lon")
+        big = big.sel(lon=slice(w - plon, e + plon), lat=slice(s - plat, n + plat))
+        big = big.where(np.abs(big) < 1.0e4)
+        found = find_mounds(-big.values, big.lon.values, big.lat.values,
+                            zmin=args.mound_depth[0], zmax=args.mound_depth[1],
+                            min_prominence=args.mound_prominence,
+                            max_shore_dist=args.mound_shore_dist)
+        found = [m for m in found if w <= m["lon"] <= e and s <= m["lat"] <= n]
+        print(f"mounds: {len(found)} (summit {args.mound_depth[0]:g}-{args.mound_depth[1]:g} m, "
+              f"prominence >= {args.mound_prominence:g} m, <= {args.mound_shore_dist:g} m from land)")
+        for m in found:
+            print(f"  {m['lon']:.5f} E {m['lat']:.5f} N  depth {m['depth']:.2f} m  "
+                  f"prominence {m['prominence']:.2f} m  shore {m['shore_dist']:.0f} m")
+        if found:
+            ax.scatter([m["lon"] for m in found], [m["lat"] for m in found], s=110,
+                       facecolors="none", edgecolors="#d62728", linewidths=1.8, zorder=12)
+        if args.mound_csv:
+            args.mound_csv.parent.mkdir(parents=True, exist_ok=True)
+            with open(args.mound_csv, "w", newline="") as f:
+                wr = csv.DictWriter(f, fieldnames=["lon", "lat", "depth", "prominence",
+                                                   "shore_dist"])
+                wr.writeheader()
+                for m in found:
+                    wr.writerow({k: round(v, 5 if k in ("lon", "lat") else 2)
+                                 for k, v in m.items()})
+    #<--- jsasaki 2026-10-24
     #---> jsasaki 2026-10-24: --box rectangles above the land layer
     from matplotlib.patches import Rectangle
     for bw, be, bs, bn in args.box:
