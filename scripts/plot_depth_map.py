@@ -87,6 +87,18 @@ def main() -> int:
     # jsasaki 2026-10-24: owner: steep mounds only (sandy tops in a muddy seabed)
     ap.add_argument("--mound-min-slope", type=float, default=0.0,
                     help="minimum mean flank slope = prominence / (base width / 2) (m/m)")
+    #---> jsasaki 2026-10-24: owner: drop artificial structures and charted rock
+    ap.add_argument("--mound-exclude-box", type=float, nargs=4, action="append", default=[],
+                    metavar=("W", "E", "S", "N"),
+                    help="drop mounds inside this box (repeatable; e.g. an artificial island)")
+    ap.add_argument("--mound-exclude-points", type=Path, default=None,
+                    help="CSV of classified seabed points (lon, lat, class), e.g. "
+                         "$DATA_DIR/sediment/substrate/msil_chart_substrate_points.csv")
+    ap.add_argument("--mound-exclude-classes", default="rock",
+                    help="comma-separated classes in --mound-exclude-points that drop a mound")
+    ap.add_argument("--mound-exclude-radius", type=float, default=300.0,
+                    help="drop a mound with such a point within this distance of its top (m)")
+    #<--- jsasaki 2026-10-24
     # jsasaki 2026-10-24: owner: criteria text under the map by default
     ap.add_argument("--no-mound-label", action="store_true",
                     help="do not write the mound criteria under the map")
@@ -164,6 +176,32 @@ def main() -> int:
                             min_slope=args.mound_min_slope,
                             width_range=tuple(args.mound_width) if args.mound_width else None)
         found = [m for m in found if w <= m["lon"] <= e and s <= m["lat"] <= n]
+        #---> jsasaki 2026-10-24: exclusion boxes and nearby classified points
+        for bw, be, bs, bn in args.mound_exclude_box:
+            drop = [m for m in found if bw <= m["lon"] <= be and bs <= m["lat"] <= bn]
+            for m in drop:
+                print(f"  excluded (box {bw:g} {be:g} {bs:g} {bn:g}): {m['lon']:.5f} E {m['lat']:.5f} N")
+            found = [m for m in found if m not in drop]
+        excl_classes = [c.strip() for c in args.mound_exclude_classes.split(",") if c.strip()]
+        if args.mound_exclude_points:
+            pts = []
+            with open(args.mound_exclude_points, newline="", encoding="utf-8") as f:
+                for r in csv.DictReader(f):
+                    if r["class"] in excl_classes:
+                        pts.append((float(r["lon"]), float(r["lat"])))
+            pts = np.asarray(pts).reshape(-1, 2)
+            kx = 111_320.0 * np.cos(np.radians((s + n) / 2))
+            keep = []
+            for m in found:
+                dist = np.hypot((pts[:, 0] - m["lon"]) * kx, (pts[:, 1] - m["lat"]) * 111_320.0)
+                dmin = float(dist.min()) if dist.size else np.inf
+                if dmin <= args.mound_exclude_radius:
+                    print(f"  excluded ({'/'.join(excl_classes)} point {dmin:.0f} m): "
+                          f"{m['lon']:.5f} E {m['lat']:.5f} N")
+                else:
+                    keep.append(m)
+            found = keep
+        #<--- jsasaki 2026-10-24
         print(f"mounds: {len(found)} (summit {args.mound_depth[0]:g}-{args.mound_depth[1]:g} m, "
               f"prominence >= {args.mound_prominence:g} m, <= {args.mound_shore_dist:g} m from land, "
               # jsasaki 2026-10-24: report slope / width filters and values
@@ -184,7 +222,13 @@ def main() -> int:
             if args.mound_width:
                 parts.append(f"width {args.mound_width[0]:g}\u2013{args.mound_width[1]:g} m")
             parts.append(f"\u2264{args.mound_shore_dist / 1000:g} km from shore")
-            ax.text(0.0, -0.135, "\u25cb Mounds: " + ", ".join(parts), transform=ax.transAxes,
+            # jsasaki 2026-10-24: say when charted points removed mounds
+            if args.mound_exclude_points:
+                parts.append(f"no charted {'/'.join(excl_classes)} \u2264{args.mound_exclude_radius:g} m")
+            # jsasaki 2026-10-24: wrap onto two lines when long
+            import textwrap
+            label = "\n".join(textwrap.wrap("\u25cb Mounds: " + ", ".join(parts), width=62))
+            ax.text(0.0, -0.135, label, transform=ax.transAxes,
                     ha="left", va="top", fontsize=args.font_size or 12, color="#d62728")
         #<--- jsasaki 2026-10-24
         if args.mound_csv:
