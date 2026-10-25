@@ -142,8 +142,9 @@ def main() -> int:
         "; Futtsu: Fisheries Agency 2022 survey (Futtsu_JFA_2023, 0.5 m, T.P.)")
     today = date.today().isoformat()
     out.attrs.update({
-        "title": "Tokyo Bay 50 m T.P. DEM: M7001, Chiba channel corrected (Endo 2020), "
-                 "Futtsu merged (Fisheries Agency 2022 survey)",
+        # jsasaki 2026-10-25: keep the base's own description, state the spacing
+        "title": (f"{base_ds.attrs.get('title', args.base.name)}; Futtsu merged (Fisheries "
+                  f"Agency 2022 survey), {d:g} deg grid"),
         "futtsu_merge": (
             f"Fisheries Agency 2022 Futtsu survey ({args.src}, {len(files)} tiles of a 0.5 m "
             "grid, EPSG:6677, elevation above T.P.) block-medianed to this 0.0005 deg lattice "

@@ -18,7 +18,7 @@ the surrounding flat seabed. The correction therefore has two steps:
 Endo cells deeper than --max-depth (dredged borrow pits, being back-filled) are not
 used. Everything outside the corridor is M7001 unchanged.
 
-Both grids are on the same 0.0005 deg lattice; the Endo values are taken by nearest cell.
+Works on any base spacing (50 m, 10 m); the Endo values are taken by nearest cell.
 
     python scripts/m7001_chiba_channel.py --out .../M7001_dem_tokyobay_50m_chiba_channel.nc
 """
@@ -131,8 +131,9 @@ def main() -> int:
     w, e = min(p[0] for p in AXIS) - 0.02, max(p[0] for p in AXIS) + 0.02
     s, n = min(p[1] for p in AXIS) - 0.02, max(p[1] for p in AXIS) + 0.02
     sub = elev.sel(lon=slice(w, e), lat=slice(s, n))
+    # jsasaki 2026-10-25: any base spacing (10 m too): nearest Endo cell, no lattice match needed
     endo = xr.open_dataset(args.endo)["elevation"].astype("float64").reindex(
-        lon=sub.lon, lat=sub.lat, method="nearest", tolerance=1e-6)
+        lon=sub.lon, lat=sub.lat, method="nearest")
 
     LON, LAT = np.meshgrid(sub.lon.values, sub.lat.values)
     dist = dist_to_polyline(LON, LAT, AXIS)
@@ -140,8 +141,10 @@ def main() -> int:
 
     d_m, d_e = -sub.values, -endo.values
     lat0 = np.radians(float(sub.lat.mean()))
-    dx = 0.0005 * 111_320.0 * np.cos(lat0)
-    dy = 0.0005 * 111_320.0
+    # jsasaki 2026-10-25: cell size from the grid itself, not the 50 m spacing
+    spacing = float(np.median(np.diff(sub.lon.values)))
+    dx = spacing * 111_320.0 * np.cos(lat0)
+    dy = spacing * 111_320.0
     corridor = (dist <= args.fill_width) & np.isfinite(d_m) & ~beyond_ends(LON, LAT, AXIS)
     smooth = harmonic_fill(np.where(corridor, np.nan, d_m), corridor, dx, dy)
     ok_e = np.isfinite(d_e) & (d_e <= args.max_depth)
@@ -175,7 +178,9 @@ def main() -> int:
     #<--- jsasaki 2026-10-23
     out.attrs = dict(ds.attrs)
     out.attrs.update({
-        "title": "M7001 50 m T.P. DEM of Tokyo Bay, Chiba channel corrected with the Endo (2020) 50 m grid",
+        # jsasaki 2026-10-25: title states the actual grid spacing
+        "title": (f"M7001 {spacing:g} deg (~{dy:.0f} m) T.P. DEM of Tokyo Bay, Chiba channel "
+                  "corrected with the Endo (2020) 50 m grid"),
         "chiba_channel_correction": (
             # jsasaki 2026-10-23: describe the two-step correction
             "M7001 does not resolve the dredged Chiba channel and smears its soundings into "
