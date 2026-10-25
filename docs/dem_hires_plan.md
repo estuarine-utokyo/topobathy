@@ -1,6 +1,7 @@
 # High-resolution (10 m / 5 m) Tokyo Bay DEM — feasibility and plan
 
-Status: **plan** (2026-10-24). Goal: a new DEM on the window of the 50 m DEM
+Status: **built** 2026-10-25 at 10 m + a nested 5 m Futtsu DEM, side slope 1:10 — see
+[`dem.md`](dem.md#the-10-m-tokyo-bay-dem-and-the-nested-5-m-futtsu-dem). Planned 2026-10-24. Goal: a new DEM on the window of the 50 m DEM
 (139.50–140.35 E, 34.85–35.80 N) at 10 m or 5 m, built **from the original data**, not by
 resampling the 50 m grid.
 

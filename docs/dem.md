@@ -76,7 +76,7 @@ Three 0.0005° (≈ 45 × 55 m) T.P. DEMs of Tokyo Bay sit in
 channel corrected from the Endo (2020) 50 m grid and the Fisheries Agency 2022 Futtsu
 survey merged. The M7001-only grid that carried the default name until then is now
 `M7001_dem_tokyobay_50m_m7001_only.nc`. A README beside the files
-(`M7001_dem_tokyobay_50m.README.md`) says the same for users of the data archive.
+(`M7001_dem_tokyobay.README.md`) says the same for users of the data archive.
 
 ```
 M7001_TP.parquet ──topobathy-m7001-dem──▶ M7001_dem_tokyobay_50m_m7001_only.nc
@@ -193,8 +193,62 @@ Single maps at full size: [`figures/futtsu_merge_before.png`](figures/futtsu_mer
 (the file names keep `chiba_channel` from before the Futtsu merge; the content is the
 default DEM). The inner-bay and Boso close-up maps do not reach Futtsu and were not redrawn.
 
-A 10 m / 5 m DEM on the same window from the original data: feasibility and plan in
-[`dem_hires_plan.md`](dem_hires_plan.md).
+## The 10 m Tokyo Bay DEM and the nested 5 m Futtsu DEM
+
+Built 2026-10-25 from the original data (not by resampling the 50 m grid) by
+[`scripts/genkai_dem_10m_futtsu_5m.sh`](../scripts/genkai_dem_10m_futtsu_5m.sh) (job
+7176962, 13 min); feasibility and the choice of 10 m in [`dem_hires_plan.md`](dem_hires_plan.md).
+Sources: M7001 everywhere; the Endo grid for the Chiba channel cross-section only; the
+Futtsu 2022 survey in its footprint. The Cabinet Office topography is **not** used (it
+does not resolve the Chiba channel and is out of date).
+
+| file (`$DATA_DIR/geodata/bathymetry/M7001/TP/`) | grid | contents |
+|---|---|---|
+| **`M7001_dem_tokyobay_10m.nc`** (74 MB) | 0.0001° (≈ 9 × 11 m), 8501 × 9501, window of the 50 m DEM | M7001 + Chiba channel + Futtsu (**final**) |
+| `M7001_dem_tokyobay_10m_chiba_channel.nc` (74 MB) | same | M7001 + Chiba channel (stage) |
+| `M7001_dem_tokyobay_10m_m7001_only.nc` (75 MB) | same | M7001 only (stage) |
+| **`M7001_dem_futtsu_5m.nc`** (1.6 MB) | 0.00005° (≈ 4.5 × 5.6 m), 1201 × 801, 139.77–139.83 E, 35.30–35.34 N | Futtsu 2022 survey at 5 m, nested in the 10 m DEM |
+
+Steps (the 50 m chain at 10 m):
+
+1. `topobathy-m7001-dem --spacing 0.0001 --tension 0.35 --mask-km 2.0` over 139.50–140.35 E,
+   34.85–35.80 N (GMT blockmedian + surface, OSM hydro-flattening).
+2. Chiba channel, as at 50 m (harmonic refill within 900 m of the axis, straight channel:
+   floor 18.98 m below T.P., 175 m half-width) but with a **side slope of 1:10** (owner),
+   which a 10 m grid can carry: channel 5.71 km² (7.5 km² at 50 m with 1:25).
+3. Futtsu survey block-medianed to 0.0001° (33 321 cells ≥ 50 % covered) and merged with a
+   **100 m** edge ramp; 32 652 cells (3.30 km²) changed.
+4. 5 m base: the 10 m final DEM bilinearly refined onto a 0.00005° lattice over the Futtsu
+   window ([`scripts/refine_dem_subset.py`](../scripts/refine_dem_subset.py)); every 10 m
+   node is a 5 m node (nested); land re-masked from OSM at 5 m.
+5. Futtsu survey block-medianed to 0.00005° (133 262 cells, ≈ 100 nodes each) and merged
+   with a **50 m** ramp. Outside the survey footprint the 5 m DEM is the 10 m DEM refined.
+
+**Consistency.** The 5 m DEM inside the footprint and the 10 m DEM differ by a median
+0.00 m (5–95 % −0.30 to +0.16 m: the extra 5 m detail). The 10 m final DEM block-averaged
+to the 50 m lattice (5 × 5 cells) against the 50 m final DEM: flat seabed median +0.005 m
+(IQR ±0.02 m); all wet cells median +0.003 m, 5–95 % −1.1 to +1.3 m (slopes and shapes the
+10 m grid resolves); Chiba channel box and Futtsu footprint medians 0.00 m.
+
+**Futtsu vs M7001 (datum).** Where raw survey nodes lie within 2 m of an M7001 point
+(70 points, [`scripts/futtsu_vs_m7001_points.py`](../scripts/futtsu_vs_m7001_points.py)):
+on the M7001 low-tide line (T.P. −1.09 m, 57 points) the survey is a median **0.72 m
+deeper**; on the 2 m contour (T.P. −2.09 m, 13 points) it is **0.58 m shallower**. Opposite
+signs rule out a datum offset: the chart's low-tide line and contours are simply not where
+the 2022 survey puts those depths (morphological change or chart line position). No shift
+is applied.
+
+![Chiba channel, 50 m vs 10 m](figures/chiba_channel_50m_vs_10m.png)
+
+*Chiba channel: 50 m DEM (1:25) | 10 m DEM (1:10) | change (blue = shallower at 10 m: the
+narrower side slopes).*
+
+![Futtsu, 50 m vs 5 m](figures/futtsu_50m_vs_5m.png)
+
+*Futtsu: 50 m DEM | 5 m Futtsu DEM | change; red box = survey footprint. Outside it the
+change is the M7001 spline at 10 m vs 50 m.* Whole bay at 10 m:
+[`figures/tokyobay_depth_tp_10m.png`](figures/tokyobay_depth_tp_10m.png).
+
 
 ## Notes & refinements
 

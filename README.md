@@ -136,6 +136,8 @@ land, incl. reclaimed land/islands). See **[`docs/dem.md`](docs/dem.md)**.
 The 50 m Tokyo Bay DEM `M7001_dem_tokyobay_50m.nc` (default name) is M7001 with the Chiba
 channel corrected from the Endo 50 m grid and the Fisheries Agency 2022 Futtsu survey
 (0.5 m) merged; the stages are kept as `..._m7001_only.nc` and `..._chiba_channel.nc`.
+A 10 m version (`M7001_dem_tokyobay_10m.nc`) and a nested 5 m Futtsu DEM
+(`M7001_dem_futtsu_5m.nc`) are built from the same original data.
 Sources, method and the data sets only compared:
 [`docs/dem.md` — the 50 m Tokyo Bay DEMs](docs/dem.md#the-50-m-tokyo-bay-dems-and-what-goes-into-them).
 

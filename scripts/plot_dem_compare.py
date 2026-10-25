@@ -50,6 +50,10 @@ def main() -> int:
     w, e, s, n = args.region
     a = load(args.before, args.region)
     b = load(args.after, args.region)
+    # jsasaki 2026-10-25: grids of different spacing (50 m vs 10 m): show "before" on the
+    # "after" grid by nearest cell, so its own cells stay visible
+    if a.shape != b.shape or not np.allclose(a.lon, b.lon):
+        a = a.interp(lon=b.lon, lat=b.lat, method="nearest")
     diff = (b - a).where(np.abs(b - a) > 1e-4)
     lim = args.dlim or float(np.ceil(np.nanpercentile(np.abs(diff), 98) * 2) / 2)
     levels = np.arange(0.0, args.vmax + args.step / 2, args.step)
