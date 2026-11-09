@@ -49,5 +49,5 @@ tracks this note and the checksums `docs/sanbanze_chiba_ap.sha256`
 - Some files (e.g. H28) have spaces before the commas; parse with whitespace stripped.
 - "世界測地系" is not resolved to JGD2000 or JGD2011. The two differ by tens of cm in this area
   after 2011; irrelevant at 10–100 m grid spacing, but ask Chiba before using it at finer scale.
-- No code in this repository reads these files yet. A gridding / T.P. conversion step should be
-  added as a script before the data enter a DEM.
+- Merged into the 50 m and 10 m Tokyo Bay DEMs on 2026-11-09 by `scripts/sanbanze_merge.py`
+  (see `dem.md`, section "The Sanbanze merge"). Only the 10 m files of H28 and H24 are used.

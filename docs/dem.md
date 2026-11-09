@@ -193,6 +193,28 @@ Single maps at full size: [`figures/futtsu_merge_before.png`](figures/futtsu_mer
 (the file names keep `chiba_channel` from before the Futtsu merge; the content is the
 default DEM). The inner-bay and Boso close-up maps do not reach Futtsu and were not redrawn.
 
+## The Sanbanze merge (Chiba Prefecture surveys, 2026-11-09)
+
+`$DATA_DIR/geodata/bathymetry/tokyo_bay/Sanbanze_Chiba_AP/` (README there; format and defects in
+[`sanbanze.md`](sanbanze.md)) holds the Chiba Prefecture 10 m surveys of Sanbanze in A.P.
+[`scripts/sanbanze_merge.py`](../scripts/sanbanze_merge.py) (job
+[`scripts/genkai_sanbanze_merge.sh`](../scripts/genkai_sanbanze_merge.sh), job 7521732) merges
+them into the Futtsu-merged 50 m **and** 10 m DEMs: Z(T.P.) = Z(A.P.) − 1.1344 m (nominal),
+H28 first and H24 for the rest of the flat, block median (50 m) or linear interpolation (10 m),
+250 m edge ramp, water cells only. The DEMs before the merge are kept as
+`M7001_dem_tokyobay_{50m,10m}_futtsu.nc`; the default names now carry Sanbanze.
+
+| | 50 m | 10 m |
+|---|---|---|
+| cells changed (23.8 km²) | 9 414 | 235 409 |
+| survey − base, flat seabed, median (IQR) | −0.33 m (−0.47 … −0.23) | −0.25 m (−0.38 … −0.13) |
+| H28 − H24 where both cover, median | −0.08 m | −0.08 m |
+
+The survey is 0.25–0.35 m deeper than the base on flat seabed, i.e. the nominal A.P. offset puts
+Sanbanze lower than M7001 (cf. the Endo grid, which needed 0.982 m instead of 1.134 m). The
+nominal value was kept by decision (owner); the difference is recorded in the file attributes.
+Difference map: ![Sanbanze merge, 50 m](figures/sanbanze_merge_diff_50m.png)
+
 ## The 10 m Tokyo Bay DEM and the nested 5 m Futtsu DEM
 
 Built 2026-10-25 from the original data (not by resampling the 50 m grid) by
