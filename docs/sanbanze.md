@@ -76,3 +76,29 @@ all values A.P., so a change is a change of the seabed relative to the A.P. refe
   explains most of the −0.33 / −0.25 m survey − base difference found at the merge
   (`dem.md`): it equals the H20 → H28 shift (−0.33 m). The nominal A.P. offset (1.1344 m) is not
   the cause.
+
+### Land subsidence near Sanbanze in 2011 (Chiba Prefecture leveling, checked 2026-11-09)
+
+Source: Chiba Prefecture, "平成23年 地盤沈下の状況について" (2012-08-24;
+https://www.pref.chiba.lg.jp/suiho/press/2012/h23jibanchinka.html, full text PDF `houdouh23-24.pdf`
+there). First-order leveling, observed 2011-11 to 2012-03, change = height on 2011-01-01 minus the
+observed height, so it includes the earthquake. The report says the earthquake dominated and
+attributes the large values to liquefaction; it does not separate the earthquake from the annual
+trend, and it lists only benchmarks of 10 cm or more individually.
+
+| city (benchmarks computed) | typical | largest |
+|---|---|---|
+| Ichikawa (41) | 4-6 cm (33 benchmarks) | 30.89 cm I-53 Shiohama; 12.13 cm I-4 Chidoricho |
+| Funabashi (33) | 4-6 cm (30 benchmarks, class reading inferred from the table layout) | 12.47 cm F-7 Sakaecho; 10.35 cm F-10 Hinode |
+| Narashino (15) | 4-6 cm (13) | 7.35 cm N-2 Minomi |
+| Urayasu (17) | 4-6 cm (10) | 17.28 cm U-13 Irifune; 14.70 cm U-9; 13.90 cm U-14 |
+
+For comparison the previous year (2010) changed by < 2.2 cm at every benchmark.
+
+Reading against the survey shift (−0.23 m, H20 → H24): the land next to Sanbanze subsided typically
+4-6 cm and 10-31 cm at liquefied points (Shiohama and Hinode are on the Sanbanze coast). That is
+the same sign and, at the worst points, the same size, but the typical land value is about a
+quarter of the seabed shift, and the seabed shift is also found at −12 … −6 m depth, away from
+the reclaimed coast. The earthquake therefore explains part of the shift at most; a change of
+survey method or tide reduction, and local compaction of the seabed, remain possible and are not
+separated. Whether the A.P. reference used by the surveys moved is not known.
