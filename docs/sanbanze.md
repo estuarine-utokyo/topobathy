@@ -51,3 +51,28 @@ tracks this note and the checksums `docs/sanbanze_chiba_ap.sha256`
   after 2011; irrelevant at 10–100 m grid spacing, but ask Chiba before using it at finer scale.
 - Merged into the 50 m and 10 m Tokyo Bay DEMs on 2026-11-09 by `scripts/sanbanze_merge.py`
   (see `dem.md`, section "The Sanbanze merge"). Only the 10 m files of H28 and H24 are used.
+
+## Effect of the 2011 Tohoku earthquake (checked 2026-11-09, `scripts/sanbanze_epoch_compare.py`)
+
+The same 10 m node is compared between epochs on flat seabed (slope < 0.01 in the older epoch;
+all values A.P., so a change is a change of the seabed relative to the A.P. reference).
+
+| pair | n | median (newer − older) |
+|---|---|---|
+| H12 → H14 | 11 323 | −0.10 m |
+| H14 → H20 | 11 773 | +0.07 m (+0.11 m over all depths) |
+| **H20 → H24 (across the quake)** | 34 968 | **−0.23 m** (IQR −0.31 … −0.16) |
+| H24 → H28 | 14 411 | −0.14 m |
+| H20 → H28 | 12 564 | −0.33 m |
+
+- The post-quake surveys (H24, H28) are about **0.2–0.3 m deeper** than the pre-quake ones, larger
+  than the ±0.1 m scatter between pre-quake surveys.
+- The H20 → H24 shift is **uniform with depth** (−0.18 … −0.28 m from −12 m to +1.5 m A.P.) and
+  across the flat (−0.17 … −0.24 m in four of the five 1 km northing bands), which points to a
+  vertical shift of the reference (subsidence of the benchmarks / datum) rather than erosion. It
+  cannot be separated from a change in survey method or tide reduction with these files alone;
+  the size of the earthquake subsidence here is not confirmed against a published value.
+- The DEM merge uses H28/H24 and is therefore post-quake. M7001 (chart soundings) is older, which
+  explains most of the −0.33 / −0.25 m survey − base difference found at the merge
+  (`dem.md`): it equals the H20 → H28 shift (−0.33 m). The nominal A.P. offset (1.1344 m) is not
+  the cause.
