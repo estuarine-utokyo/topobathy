@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Merge the Fisheries Agency 2022 Futtsu survey (0.5 m, T.P.) into the 50 m Tokyo Bay DEM.
 
-Source: ``$DATA_DIR/geodata/bathymetry/Futtsu_JFA_2023/05MCSV_TP/*.txt`` -- 43 tiles of a
+Source: ``$DATA_DIR/geodata/bathymetry/tokyo_bay/Futtsu_JFA_2023/05MCSV_TP/*.txt`` -- 43 tiles of a
 0.5 m grid (800 x 600 nodes per 400 m x 300 m tile), columns ``id, easting, northing,
 elevation, flag`` in JGD2011 plane rectangular zone IX (EPSG:6677), elevation in m above
 T.P. (negative below). ``MESH_TP/`` holds byte-identical copies; ``ORIGINAL_TP/`` (the raw
@@ -54,7 +54,8 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     b = config.get_bathymetry_dir()
     ap.add_argument("--base", type=Path, required=True, help="50 m T.P. DEM to merge into")
-    ap.add_argument("--src", type=Path, default=b / "Futtsu_JFA_2023" / "05MCSV_TP")
+    # jsasaki 2026-11-09: Futtsu_JFA_2023 moved under tokyo_bay/
+    ap.add_argument("--src", type=Path, default=b / "tokyo_bay" / "Futtsu_JFA_2023" / "05MCSV_TP")
     ap.add_argument("--min-coverage", type=float, default=0.5)
     ap.add_argument("--ramp", type=float, default=250.0, help="edge ramp width (m)")
     ap.add_argument("--out", type=Path, required=True)

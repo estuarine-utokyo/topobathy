@@ -33,7 +33,8 @@ def main() -> int:
     ap.add_argument("--radius", type=float, default=2.0)
     args = ap.parse_args()
     b = config.get_bathymetry_dir()
-    tiles = sorted((b / "Futtsu_JFA_2023" / "05MCSV_TP").glob("*.txt"))
+    # jsasaki 2026-11-09: Futtsu_JFA_2023 moved under tokyo_bay/
+    tiles = sorted((b / "tokyo_bay" / "Futtsu_JFA_2023" / "05MCSV_TP").glob("*.txt"))
     sv = pd.concat([pd.read_csv(f, header=None, names=["id", "e", "n", "z", "flag"],
                                 usecols=["e", "n", "z"]) for f in tiles], ignore_index=True)
     sv = sv[sv.z > -9000]

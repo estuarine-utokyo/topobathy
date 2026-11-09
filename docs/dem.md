@@ -150,7 +150,7 @@ depths), the older Cabinet Office 30 m grid (`tokyo_bay/depth_0030-*`), JCG 500 
 
 ### The Futtsu merge (Fisheries Agency 2022 survey)
 
-`$DATA_DIR/geodata/bathymetry/Futtsu_JFA_2023/` (README there) is the Fisheries Agency's
+`$DATA_DIR/geodata/bathymetry/tokyo_bay/Futtsu_JFA_2023/` (README there) is the Fisheries Agency's
 2022 survey of the Futtsu flats: a 0.5 m grid in 43 tiles of 400 m × 300 m
 (`05MCSV_TP/*.txt`, columns `id, easting, northing, elevation, flag`, JGD2011 zone IX =
 EPSG:6677, elevation above T.P.; 13.4 M nodes; `MESH_TP/` is a byte-identical copy, the
