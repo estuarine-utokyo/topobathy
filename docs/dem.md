@@ -106,7 +106,7 @@ M7001 does not. Two steps make it usable here:
    seabed** (3–25 m deep, slope < 0.002, |difference| < 3 m, so dredged pits, channels
    and harbours are left out) Endo is shallower than M7001 by a median **0.982 m**
    (IQR −1.14 to −0.86 m, n = 86 764), consistent with A.P. (T.P. − 1.134 m), the datum
-   expected of an MLIT product. Taking M7001 as correct (owner), the grid is shifted by
+   expected of an MLIT product (confirmed by the owner 2026-11-14: Endo's data are in A.P.). Taking M7001 as correct (owner), the grid is shifted by
    the measured 0.982 m rather than the nominal A.P. value
    (`tokyobay_endo/nc/endo_50m_lonlat_tp.nc`; the shift is in its attributes).
    Residual by sub-area: NW −0.20, NE −0.01, SW −0.04, SE +0.12 m.
