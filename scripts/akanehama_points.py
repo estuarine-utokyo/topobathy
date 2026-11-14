@@ -2,7 +2,7 @@
 """Extract the single-beam soundings (zone IX X/Y + depth) from the MLIT Akanehama
 soil-placement survey spreadsheets (2019/2020, before/after) into one CSV.
 
-Depth is positive down in A.P. (owner, 2026-11-14). Columns of the output:
+Depth is positive down below the Chiba-Lighthouse tide-gauge D.L. = T.P.-1.198 m (checked in the reports' tide logs, 2026-11-15; the owner had said A.P. = T.P.-1.1344 m, a 0.064 m difference). Columns of the output:
 survey, date, x_m, y_m, lon, lat, depth_ap_m  (x = northing, y = easting, plane rectangular zone IX).
 The CRS is assumed to be EPSG:2451 (JGD2000 zone IX); JGD2000/2011 is not recorded.
 
@@ -14,7 +14,7 @@ import numpy as np, pandas as pd
 
 SRC = [  # (label, relative path glob, kind)
     ("2019-04-19_pre",  "2019/投入前/提出用データ/6-3_*.xls", "xls"),
-    ("2019-08-21_post", "2019/投入後/提出用データ/07-3_*.xls", "xls"),
+    ("2019-08-06_post", "2019/投入後/提出用データ/07-3_*.xls", "xls"),
     ("2020-05-18_pre",  "2020/投入前/提出用データ/6-3_*.xlsx", "xlsx"),
     ("2020-07-30_post", "2020/投入後/提出用データ/7-3_*.xlsx", "xlsx"),
 ]
