@@ -32,6 +32,12 @@ Portability and extensibility (mirroring the `xfvcom` layout):
 - **Canonical point dataset** = a `pandas.DataFrame` (`mark, lon, lat, …`),
   serialisable to CSV / Parquet / NetCDF with a self-describing README sidecar.
 
+## Data archive
+
+What is archived under `$DATA_DIR/geodata/bathymetry/`, which Tokyo Bay DEM is the final one and what is
+undocumented: **[`docs/data_archive.md`](docs/data_archive.md)**; check the disk against it with
+`python scripts/archive_status.py`.
+
 ## Installation
 
 Use **mamba** (conda-forge). `pip` is allowed **only** for the editable install
