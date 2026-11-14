@@ -3,7 +3,7 @@
 soil-placement survey spreadsheets (2019/2020, before/after) into one CSV.
 
 Depth is positive down below the Chiba-Lighthouse tide-gauge D.L. = T.P.-1.198 m (checked in the reports' tide logs, 2026-11-15; the owner had said A.P. = T.P.-1.1344 m, a 0.064 m difference). Columns of the output:
-survey, date, x_m, y_m, lon, lat, depth_ap_m  (x = northing, y = easting, plane rectangular zone IX).
+survey, date, x_m, y_m, lon, lat, depth_dl_m  (x = northing, y = easting, plane rectangular zone IX).
 The CRS is assumed to be EPSG:2451 (JGD2000 zone IX); JGD2000/2011 is not recorded.
 
   python scripts/akanehama_points.py --out akanehama_sb_points.csv
@@ -63,7 +63,7 @@ def main():
             sys.exit(f"{label}: expected one file for {pat}, got {f}")
         p = extract(f[0], kind)
         lon, lat = tr.transform(p[:, 1], p[:, 0])
-        df = pd.DataFrame(dict(survey=label, x_m=p[:, 0], y_m=p[:, 1], lon=lon, lat=lat, depth_ap_m=p[:, 2]))
+        df = pd.DataFrame(dict(survey=label, x_m=p[:, 0], y_m=p[:, 1], lon=lon, lat=lat, depth_dl_m=p[:, 2]))
         frames.append(df)
         print(f"{label}: n={len(df)} lon {lon.min():.4f}..{lon.max():.4f} lat {lat.min():.4f}..{lat.max():.4f} "
               f"depth {p[:,2].min():.2f}..{p[:,2].max():.2f} (mean {p[:,2].mean():.2f})")
