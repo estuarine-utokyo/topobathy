@@ -27,7 +27,7 @@ Sanbanze part is post-2011-earthquake and about 0.3 m deeper than the surroundin
 | `M7001/` | JHA/JCG chart soundings (Southern Kanto, Ver. 2.4) + `TP/` conversion and DEMs | chart datum → T.P. | yes (updated 2026-11-14) | everything | maintained; licensed ([`m7001.md`](m7001.md)) |
 | `tokyo_bay/Futtsu_JFA_2023/` | Fisheries Agency 2022 survey, Futtsu flats, 0.5 m | T.P., EPSG:6677 | yes | `futtsu_jfa_merge.py` | maintained (moved here 2026-11-09) |
 | `tokyo_bay/Sanbanze_Chiba_AP/` | Chiba Prefecture Sanbanze surveys, 8 epochs (S55–H28), 10 m and 100 m | A.P., zone IX (JGD2000/2011 unstated) | yes | `sanbanze_merge.py` | maintained; checksums in `sanbanze_chiba_ap.sha256`; spec: [`sanbanze.md`](sanbanze.md) |
-| `tokyobay_endo/` | Endo (2020) 50 m Tokyo Bay edit (points, rasters, CAD/GIS, `…編集手順.docx`) | datum not stated (≈ M7001 − 0.98 m measured) | **no** | `endo50m_to_*.py`, Chiba channel | in use, **undocumented on disk**: no README, provenance only in [`dem.md`](dem.md) |
+| `tokyobay_endo/` | Endo (2020) 50 m Tokyo Bay edit (points, rasters, CAD/GIS, `…編集手順.docx`) | datum not stated (0.98 m shallower than M7001 on flat seabed, [`dem.md`](dem.md)) | **no** | `endo50m_to_*.py`, Chiba channel | in use, **undocumented on disk**: no README, provenance only in [`dem.md`](dem.md) |
 | `CAO_shutochokka_2025/` | Cabinet Office tsunami topography 2025 (10/30/90 m) | see its README | yes | `topobathy.io.grids.read_cao_2025`, comparison figures | not merged into any DEM (by decision) |
 | `mesh500/` | JCG 500 m mesh depths (text tiles) | — | no | `read_mesh500`, comparison figures | reference only |
 | `SRTM15plus/`, `GEBCO/`, `CUDEM/` | global / US coarse grids | — | no | `read_srtm15plus`, comparison | reference only |
@@ -36,7 +36,7 @@ Sanbanze part is post-2011-earthquake and about 0.3 m deeper than the surroundin
 
 | directory | observation | what is needed |
 |---|---|---|
-| `tokyo_bay/dem_*_*.nc`, `depth_*.nc` (22 files, 2021) | GDAL-made grids of the Tokyo Bay mesh area (1982 × 2466 and 1622 × 1128); `dem_*` created from a personal GitHub path of a former collaborator; `depth_0030/0090/0270/0810-*` are the older Cabinet Office grids (30–810 m) | origin, datum and licence not recorded; only `depth_0030-*` is used (a comparison figure) |
+| `tokyo_bay/dem_*_*.nc`, `depth_*.nc` (22 files, 2021) | GDAL-made grids of the Tokyo Bay mesh area (1982 × 2466 and 1622 × 1128); the `history` attribute of `dem_*` names a path on another user's computer (`/Users/…/study_case2/gis_files`); `depth_0030/0090/0270/0810-*` are the older Cabinet Office grids (30–810 m) | origin, datum and licence not recorded; only `depth_0030-*` is used (a comparison figure) |
 | `tokyo_bay/SRTM15_*.nc`, `kanto_M7001*_srtm_15s.nc`, `.om_dem_cache/` | SRTM15+ extracts and M7001+SRTM blends (July 2026), cache of an earlier tool | not referenced by current code; candidates for tidy-up |
 | `Akanehama_MLIT/` (8.6 GB, 2018–2020) | MLIT multibeam surveys, Chiba/Funabashi ports, sound-speed and tide files | no README, not referenced here; **a high-value source for Funabashi/Chiba** if the licence allows use |
 | `sea_chart/TokyoBay/` | nautical chart (2016) | no README, not referenced |
