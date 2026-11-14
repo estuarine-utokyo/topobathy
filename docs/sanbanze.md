@@ -102,3 +102,19 @@ quarter of the seabed shift, and the seabed shift is also found at −12 … −
 the reclaimed coast. The earthquake therefore explains part of the shift at most; a change of
 survey method or tide reduction, and local compaction of the seabed, remain possible and are not
 separated. Whether the A.P. reference used by the surveys moved is not known.
+
+### How M7001 handles the earthquake (checked 2026-11-14)
+
+- Nothing in the JHA web pages (M7000 update notice, product pages) or in the product's own help
+  (`M7001/ascii/help/データの概要/format.htm`) mentions the 2011 earthquake, crustal movement,
+  subsidence or a datum revision. The depth contours are taken from JCG "沿岸の海の基本図" (source
+  code table in `format.htm`); the survey years of those charts are not in the data.
+- Columns 61-62 of every point are "データ収得年" (year the data were *acquired*, last two digits). Of
+  the 604 420 N (depth-contour) points in the Tokyo Bay window: 2011 = 534 804 (88 %), 2018 =
+  56 758 (9 %), 2008 = 12 858 (2 %). In the Sanbanze neighbourhood (139.85-140.05 E, 35.55-35.75 N):
+  2011 = 5 420, 2018 = 3 600. This is the year of data acquisition (digitisation), not the survey
+  year, and it does not say whether the 2011 points are before or after 11 March.
+- Depths are relative to the chart datum (基本水準面) and were raised to T.P. with Z0 from the
+  JMA/JCG tide-station datums (`TP/M7001_TP.README.md`); no earthquake shift is applied anywhere in
+  that chain. Whether the chart soundings predate the earthquake is likely (basic maps of the sea
+  are older surveys) but not confirmed.
