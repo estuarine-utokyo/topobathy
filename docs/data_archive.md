@@ -36,16 +36,16 @@ Sanbanze part is post-2011-earthquake and about 0.3 m deeper than the surroundin
 
 | directory | observation | what is needed |
 |---|---|---|
-| `tokyo_bay/dem_*_*.nc`, `depth_*.nc` (22 files, 2021) | GDAL-made grids of the Tokyo Bay mesh area (1982 × 2466 and 1622 × 1128); the `history` attribute of `dem_*` names a path on another user's computer (`/Users/…/study_case2/gis_files`); `depth_0030/0090/0270/0810-*` are the older Cabinet Office grids (30–810 m) | origin, datum and licence not recorded; only `depth_0030-*` is used (a comparison figure) |
-| `tokyo_bay/SRTM15_*.nc`, `kanto_M7001*_srtm_15s.nc`, `.om_dem_cache/` | SRTM15+ extracts and M7001+SRTM blends (July 2026), cache of an earlier tool | not referenced by current code; candidates for tidy-up |
-| `Akanehama_MLIT/` (8.6 GB, 2018–2020) | raw multibeam (`.S7k`, 2018) with sound-speed and Chiba Port tide files; MLIT pre/post soil-placement survey reports and drawings off Akanehama (2019, 2020) | README written 2026-11-14; **usable (owner); MLIT data, A.P.**; not yet processed or used by any script |
+| `tokyo_bay/dem_*_*.nc`, `depth_*.nc` (22 files, 2021) | GDAL-made grids of the Tokyo Bay mesh area (1982 × 2466 and 1622 × 1128); the `history` attribute of `dem_*` names a path on another user's computer (`/Users/…/study_case2/gis_files`); `depth_0030/0090/0270/0810-*` are the older Cabinet Office grids (30–810 m) | origin, datum and licence not recorded; **referenced by other repositories** (checked 2026-11-15 with `git grep`): `fvcom-mesh-tools` (`depth_0030/0090/…`, `dem_00_01_change.nc` in notebooks and provenance files), `OceanMesh2D` (`depth_0090-05+06+07.nc` in its Tokyo Bay scripts), topobathy (`depth_0030-*` in a comparison figure). **Do not move, rename or delete.** |
+| `tokyo_bay/SRTM15_*.nc`, `kanto_M7001*_srtm_15s.nc`, `.om_dem_cache/` | SRTM15+ extracts and M7001+SRTM blends (July 2026), cache of an earlier tool | `kanto_M7001_srtm_15s.nc` and `SRTM15_kanto_15s.nc` are used by `fvcom-mesh-tools` (`dem/m7001.py`) and `oceanmesh` (tests/comments refer to `SRTM15_kanto_15s`); **do not move, rename or delete** the `.nc` files. Only `.om_dem_cache/` (10 `.npz` cache files of the OceanMesh tool, regenerated on demand) is a possible clean-up candidate; the owner decides |
+| `Akanehama_MLIT/` (8.6 GB, 2018–2020) | raw multibeam (`.S7k`, 2018) with sound-speed and Chiba Port tide files; MLIT pre/post soil-placement survey reports and drawings off Akanehama (2019, 2020) | README written 2026-11-14; MLIT data; the 2019/2020 single-beam soundings are merged into the DEMs (2026-11-15, `akanehama_points.py`, `akanehama_merge.py`); datum D.L. = T.P.-1.198 m; 2018 raw multibeam not processed |
 | `sea_chart/TokyoBay/` | nautical chart (2016) | no README, not referenced |
 | `osaka_bay/` | SRTM15 GeoTIFF of Osaka Bay | not Tokyo Bay; not referenced |
 
 ## Open items for the archive
 
-1. READMEs: `tokyobay_endo/` and `Akanehama_MLIT/` written 2026-11-14; still missing for `tokyo_bay/` (top level).
-2. Record provenance and licence of `tokyo_bay/dem_*`, `depth_*`; decide keep / move / delete.
+1. READMEs: `tokyobay_endo/`, `Akanehama_MLIT/` (2026-11-14) and `tokyo_bay/` top level (2026-11-15) written.
+2. Provenance and licence of `tokyo_bay/dem_*`, `depth_*` are still unrecorded; they are used by other repositories (see the table above), so they stay where they are. A change of location needs those repositories fixed first.
 3. Ask Chiba Prefecture whether the Sanbanze "世界測地系" is JGD2000 or JGD2011.
 4. Ask JHA / JCG for the survey years behind the M7001 contours near Tokyo Bay (earthquake question).
 5. `Akanehama_MLIT/`: the 2019/2020 single-beam soundings (A.P. said by the owner, but the survey tide logs give **D.L. = T.P.-1.198 m**; used) are merged into the DEMs (2026-11-15, owner: a small dredged pit off Akanehama missing from M7001). Not used: the 2018 raw multibeam (.S7k) and the 2019/2020 multibeam charts. The coordinate system (JGD2000/2011) of the zone IX coordinates is not stated.
