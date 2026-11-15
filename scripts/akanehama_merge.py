@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Merge the MLIT Akanehama single-beam survey (off Narashino, ~410 x 520 m) into a T.P. DEM.
 
-Input: the CSV of scripts/akanehama_points.py (depth below D.L. = T.P.-1.198 m, Chiba Lighthouse tide
+Input: the CSV of scripts/akanehama_points.py (depth below the survey datum 基準面 = T.P.-1.198 m, Chiba Lighthouse tide
 station, from the reports' tide logs). Z(T.P.) = -depth - dl_offset. One survey (default: the latest,
 2020-07-30 post-placement) is put on the base lattice (block median on a coarse lattice, linear
 interpolation within one point spacing of a point on a fine lattice) and merged inside its
@@ -26,7 +26,7 @@ def main() -> int:
     ap.add_argument("--base", type=Path, required=True)
     ap.add_argument("--points", type=Path, required=True)
     ap.add_argument("--survey", default="2020-07-30_post")
-    ap.add_argument("--dl-offset", type=float, default=1.198, help="T.P. - D.L. (m)")
+    ap.add_argument("--dl-offset", type=float, default=1.198, help="T.P. - survey datum (基準面) (m)")
     ap.add_argument("--min-coverage", type=float, default=0.5)
     ap.add_argument("--ramp", type=float, default=50.0, help="edge ramp width (m)")
     ap.add_argument("--out", type=Path, required=True)
@@ -97,10 +97,10 @@ def main() -> int:
     out["elevation"] = xr.DataArray(merged.astype("float32"), dims=base.dims, coords=base.coords,
                                     attrs=dict(ds["elevation"].attrs))
     out["elevation"].attrs["source"] = (str(ds["elevation"].attrs.get("source", "")) +
-        "; Akanehama: MLIT single-beam soil-placement survey (Akanehama_MLIT, D.L. -> T.P.)")
+        "; Akanehama: MLIT single-beam soil-placement survey (Akanehama_MLIT, survey datum -> T.P.)")
     today = date.today().isoformat()
     out.attrs.update({
-        "akanehama_merge": (f"MLIT Akanehama single-beam survey {a.survey} (zone IX, depth below D.L. = "
+        "akanehama_merge": (f"MLIT Akanehama single-beam survey {a.survey} (zone IX, depth below survey datum = "
             f"T.P.-{a.dl_offset:g} m) converted to T.P., placed by {how}; merged inside the survey "
             f"footprint with a linear ramp over {a.ramp:g} m; only water cells of the base are changed"),
         "akanehama_merge_datum_check": check,

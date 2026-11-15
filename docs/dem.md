@@ -299,7 +299,7 @@ change is the M7001 spline at 10 m vs 50 m.* Whole bay at 10 m:
 A small dredged pit in front of Akanehama (Narashino) was missing from M7001 (owner, 2026-11-15). The MLIT
 soil-placement surveys of 2019-04-19/08-06 (pre/post) and 2020-05-18/07-30 (pre/post) contain single-beam
 soundings (zone IX X/Y + tide-corrected depth, ~1715 points each, ~410 x 520 m; `scripts/akanehama_points.py`).
-The survey tide logs give the datum as **D.L. = T.P.-1.198 m** (JCG Chiba Lighthouse; the owner had said A.P.,
+The survey tide logs give the survey datum (基準面) as **T.P.-1.198 m** (JCG Chiba Lighthouse; its lowest water is T.P.-1.21 m,書誌741; the soundings use the tide column 潮高II, height above that datum; the owner had said A.P.,
 T.P.-1.1344 m, 0.064 m different), so Z(T.P.) = -depth - 1.198 m. The latest survey (2020-07-30) was merged
 (`scripts/akanehama_merge.py`, `genkai_akanehama_merge.sh`; block median on 50 m, linear interpolation within 10 m
 of a point on 10 m; 50 m edge ramp; water cells only) into the Sanbanze-merged DEMs:

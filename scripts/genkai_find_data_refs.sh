@@ -12,7 +12,7 @@
 #PJM -X
 set -uo pipefail
 cd "${HOME}/Github"
-PAT='tokyo_bay/(dem_|depth_|kanto_|SRTM15_|\.om_dem)|bathymetry/(sea_chart|osaka_bay)|dem_[0-9]{2}_0[1-4]_|depth_0(030|090|270|810)|SRTM15_(kanto|pacific)|kanto_M7001'
+PAT='tokyo_bay/(dem_|depth_|kanto_|SRTM15_|\.om_dem)|sea_chart|osaka_bay|dem_[0-9]{2}_0[1-4]_|depth_0(030|090|270|810)|SRTM15_(kanto|pacific)|kanto_M7001'
 for d in */; do
   d=${d%/}
   [ -d "$d/.git" ] || [ -f "$d/.git" ] || { echo "-- $d: not a git repo, skipped"; continue; }

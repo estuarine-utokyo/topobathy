@@ -2,8 +2,8 @@
 """Extract the single-beam soundings (zone IX X/Y + depth) from the MLIT Akanehama
 soil-placement survey spreadsheets (2019/2020, before/after) into one CSV.
 
-Depth is positive down below the Chiba-Lighthouse tide-gauge D.L. = T.P.-1.198 m (checked in the reports' tide logs, 2026-11-15; the owner had said A.P. = T.P.-1.1344 m, a 0.064 m difference). Columns of the output:
-survey, date, x_m, y_m, lon, lat, depth_dl_m  (x = northing, y = easting, plane rectangular zone IX).
+Depth is positive down below the survey datum (基準面) T.P.-1.198 m of the Chiba-Lighthouse tide gauge (lowest water there T.P.-1.21 m; checked in the reports' tide logs, 2026-11-15; the owner had said A.P. = T.P.-1.1344 m, a 0.064 m difference). Columns of the output:
+survey, x_m, y_m, lon, lat, depth_dl_m  (x = northing, y = easting, plane rectangular zone IX).
 The CRS is assumed to be EPSG:2451 (JGD2000 zone IX); JGD2000/2011 is not recorded.
 
   python scripts/akanehama_points.py --out akanehama_sb_points.csv

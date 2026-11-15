@@ -18,9 +18,9 @@ from topobathy import config
 
 CHAIN = [
     "M7001_dem_tokyobay_50m_m7001_only.nc", "M7001_dem_tokyobay_50m_chiba_channel.nc",
-    "M7001_dem_tokyobay_50m_futtsu.nc", "M7001_dem_tokyobay_50m.nc",
+    "M7001_dem_tokyobay_50m_futtsu.nc", "M7001_dem_tokyobay_50m_sanbanze.nc", "M7001_dem_tokyobay_50m.nc",
     "M7001_dem_tokyobay_10m_m7001_only.nc", "M7001_dem_tokyobay_10m_chiba_channel.nc",
-    "M7001_dem_tokyobay_10m_futtsu.nc", "M7001_dem_tokyobay_10m.nc",
+    "M7001_dem_tokyobay_10m_futtsu.nc", "M7001_dem_tokyobay_10m_sanbanze.nc", "M7001_dem_tokyobay_10m.nc",
     "M7001_dem_futtsu_5m.nc",
 ]
 
