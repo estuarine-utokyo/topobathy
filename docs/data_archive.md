@@ -3,7 +3,7 @@
 The data live outside the repository, under `$DATA_DIR/geodata/bathymetry/` (group-shared,
 licensed data: keep inside the group area). This page is the curated index; **`scripts/archive_status.py`**
 (read-only, a few seconds) shows whether the disk still matches it (README present, newest file,
-the DEM chain, the Sanbanze checksums). Updated 2026-11-14.
+the DEM chain, the Sanbanze checksums). Updated 2026-11-15.
 
 ## Final products (what to use)
 
@@ -11,7 +11,7 @@ the DEM chain, the Sanbanze checksums). Updated 2026-11-14.
 
 | file | grid | contents |
 |---|---|---|
-| **`M7001_dem_tokyobay_50m.nc`** | 0.0005° (≈ 45 × 55 m) | M7001 + Chiba channel (Endo 2020) + Futtsu (JFA 2022) + Sanbanze (Chiba H28/H24); 2026-11-09 |
+| **`M7001_dem_tokyobay_50m.nc`** | 0.0005° (≈ 45 × 55 m) | M7001 + Chiba channel (Endo 2020) + Futtsu (JFA 2022) + Sanbanze (Chiba H28/H24) + Akanehama (MLIT 2020-07-30); 2026-11-15 |
 | **`M7001_dem_tokyobay_10m.nc`** | 0.0001° (≈ 9 × 11 m) | same sources; 2026-11-09 |
 | `M7001_dem_futtsu_5m.nc` | 0.00005°, 139.77–139.83E 35.30–35.34N | Futtsu survey, nested in the 10 m DEM |
 
@@ -48,6 +48,6 @@ Sanbanze part is post-2011-earthquake and about 0.3 m deeper than the surroundin
 2. Record provenance and licence of `tokyo_bay/dem_*`, `depth_*`; decide keep / move / delete.
 3. Ask Chiba Prefecture whether the Sanbanze "世界測地系" is JGD2000 or JGD2011.
 4. Ask JHA / JCG for the survey years behind the M7001 contours near Tokyo Bay (earthquake question).
-5. Use of `Akanehama_MLIT/` (usable): process it and update the DEM off Akanehama (the pit was filled in 2019–2020); datum is A.P. (owner); the coordinate system of the drawings is still to be read from them. Held by the owner (2026-11-14) together with the Sanbanze H23/H24 question.
+5. `Akanehama_MLIT/`: the 2019/2020 single-beam soundings (A.P. said by the owner, but the survey tide logs give **D.L. = T.P.-1.198 m**; used) are merged into the DEMs (2026-11-15, owner: a small dredged pit off Akanehama missing from M7001). Not used: the 2018 raw multibeam (.S7k) and the 2019/2020 multibeam charts. The coordinate system (JGD2000/2011) of the zone IX coordinates is not stated.
 
 Deletion candidates are listed to the owner, never deleted here (see the repository rules).

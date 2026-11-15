@@ -293,3 +293,22 @@ change is the M7001 spline at 10 m vs 50 m.* Whole bay at 10 m:
   high-density multibeam data* (**CUBE**), G-cubed 4(6).
 - JODC **J-EGG500** / JHA **JTOPO30** (TIN-based Japanese grids).
   <https://www.jodc.go.jp/jodcweb/JDOSS/infoJEGG_j.html>
+
+## The Akanehama merge (MLIT single-beam survey, 2026-11-15)
+
+A small dredged pit in front of Akanehama (Narashino) was missing from M7001 (owner, 2026-11-15). The MLIT
+soil-placement surveys of 2019-04-19/08-06 (pre/post) and 2020-05-18/07-30 (pre/post) contain single-beam
+soundings (zone IX X/Y + tide-corrected depth, ~1715 points each, ~410 x 520 m; `scripts/akanehama_points.py`).
+The survey tide logs give the datum as **D.L. = T.P.-1.198 m** (JCG Chiba Lighthouse; the owner had said A.P.,
+T.P.-1.1344 m, 0.064 m different), so Z(T.P.) = -depth - 1.198 m. The latest survey (2020-07-30) was merged
+(`scripts/akanehama_merge.py`, `genkai_akanehama_merge.sh`; block median on 50 m, linear interpolation within 10 m
+of a point on 10 m; 50 m edge ramp; water cells only) into the Sanbanze-merged DEMs:
+
+| lattice | cells changed | merged - base median | 5-95 % | footprint |
+|---|---|---|---|---|
+| 50 m | 69 (0.17 km2) | -0.77 m | -1.69 to -0.09 m | 139.9953-139.9998 E, 35.6486-35.6533 N |
+| 10 m | 1645 (0.17 km2) | -0.72 m | -1.42 to -0.06 m | same |
+
+Maps: `figures/akanehama_merge_diff_{50m,10m}.png`. The pre-merge DEMs are kept as
+`M7001_dem_tokyobay_{50m,10m}_sanbanze.nc`. The four surveys differ little from each other (placement changed
+the pit by up to ~0.1 m on average), so the choice of survey matters less than the choice of datum.
